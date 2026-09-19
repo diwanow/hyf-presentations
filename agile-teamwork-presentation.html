@@ -1,0 +1,1201 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Agile Teamwork - HackYourFuture Denmark</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&display=swap"
+      rel="stylesheet" />
+    <style>
+      /* ============================================================
+     TOKENS
+     ============================================================ */
+      :root {
+        --bg: #f7f4ef;
+        --surface: #ffffff;
+        --ink: #1a1a1a;
+        --muted: #555e6c;
+        --border: #1a1a1a;
+
+        --blue: #2563eb;
+        --blue-2: #eff6ff;
+        --yellow: #fdd764;
+        --purple: #e9e4ff;
+        --red: #dc2626;
+        --green: #16a34a;
+        --green-2: #f0fdf4;
+        --orange: #f97316;
+        --orange-2: #fef3c7;
+
+        --sh: 4px 4px 0 var(--ink);
+        --sh-sm: 2px 2px 0 var(--ink);
+        --sh-lg: 6px 6px 0 var(--ink);
+
+        --f-head: 'Archivo Black', 'Helvetica Neue', Arial, sans-serif;
+        --f-body: 'DM Sans', 'Helvetica Neue', Arial, sans-serif;
+        --f-mono: 'Courier New', monospace;
+
+        /* TV-safe sizes: nothing smaller than 16px rendered */
+        --sz-tag: clamp(14px, 1.5vw, 18px);
+        --sz-h1: clamp(40px, 6vw, 80px);
+        --sz-h2: clamp(26px, 4vw, 54px);
+        --sz-h3: clamp(28px, 5vw, 68px);
+        --sz-body: clamp(17px, 1.9vw, 25px);
+        --sz-sub: clamp(18px, 2.2vw, 28px);
+        --sz-code: clamp(15px, 1.6vw, 21px);
+      }
+
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      html,
+      body {
+        height: 100%;
+      }
+
+      body {
+        min-height: 100dvh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #dedad2;
+        font-family: var(--f-body);
+      }
+
+      /* ============================================================
+     DECK
+     ============================================================ */
+      #deck {
+        position: relative;
+        width: min(100vw, calc(100dvh * 16 / 9));
+        height: 100dvh;
+        aspect-ratio: 16 / 9;
+        overflow: hidden;
+        background: var(--bg);
+        cursor: pointer;
+        user-select: none;
+      }
+
+      /* top accent bar */
+      #deck::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 6px;
+        background: var(--ink);
+        z-index: 20;
+      }
+
+      /* ============================================================
+     SLIDES
+     ============================================================ */
+      .slide {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        padding: 6.5% 8%;
+        opacity: 0;
+        transform: translateY(14px);
+        transition: opacity 0.38s ease, transform 0.38s ease;
+        pointer-events: none;
+      }
+      .slide.active {
+        opacity: 1;
+        transform: translateY(0);
+        pointer-events: auto;
+      }
+      .slide.exit {
+        opacity: 0;
+        transform: translateY(-14px);
+      }
+
+      /* ============================================================
+     TYPE
+     ============================================================ */
+      .tag {
+        font-family: var(--f-body);
+        font-size: var(--sz-tag);
+        font-weight: 700;
+        letter-spacing: 0.11em;
+        text-transform: uppercase;
+        color: var(--muted);
+        margin-bottom: 0.9em;
+      }
+
+      /* filled pill band — used as section marker */
+      .band {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5em;
+        background: var(--ink);
+        color: #fff;
+        font-family: var(--f-body);
+        font-size: var(--sz-tag);
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        padding: 0.35em 1em;
+        border-radius: 3px;
+        margin-bottom: 1.1em;
+        align-self: flex-start;
+      }
+
+      h1 {
+        font-family: var(--f-head);
+        font-size: var(--sz-h1);
+        color: var(--ink);
+        line-height: 1;
+        margin-bottom: 0.45em;
+        letter-spacing: -0.01em;
+      }
+
+      h2 {
+        font-family: var(--f-head);
+        font-size: var(--sz-h2);
+        color: var(--ink);
+        line-height: 1.05;
+        margin-bottom: 0.45em;
+        letter-spacing: -0.01em;
+      }
+
+      .display {
+        font-size: var(--sz-h3);
+      }
+
+      .sub {
+        font-family: var(--f-body);
+        font-size: var(--sz-sub);
+        color: var(--muted);
+        line-height: 1.5;
+      }
+
+      .sub strong {
+        color: var(--ink);
+      }
+
+      /* ============================================================
+     LAYOUT
+     ============================================================ */
+      .cols {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2vw;
+      }
+      .cols3 {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 2vw;
+      }
+
+      /* ============================================================
+     CARDS
+     ============================================================ */
+      .card {
+        background: var(--surface);
+        border: 2px solid var(--ink);
+        border-radius: 4px;
+        box-shadow: var(--sh);
+        padding: clamp(14px, 2vw, 28px) 5.5%;
+        display: flex;
+        flex-direction: column;
+        gap: 0.6em;
+      }
+
+      .card-title {
+        font-family: var(--f-body);
+        font-size: clamp(15px, 1.8vw, 23px);
+        font-weight: 700;
+        color: var(--ink);
+      }
+
+      .card-body {
+        font-family: var(--f-body);
+        font-size: var(--sz-body);
+        color: var(--muted);
+        line-height: 1.5;
+      }
+
+      /* ============================================================
+     STEPS (agenda / signal rows)
+     ============================================================ */
+      .steps {
+        display: flex;
+        flex-direction: column;
+        gap: 0.2em;
+      }
+
+      .step {
+        display: flex;
+        align-items: center;
+        gap: 3.5%;
+        padding: 1.4% 0;
+        border-bottom: 1px solid #d1d5db;
+      }
+      .step:last-child {
+        border: none;
+      }
+
+      .step-n {
+        min-width: clamp(30px, 3.5vw, 46px);
+        height: clamp(30px, 3.5vw, 46px);
+        background: var(--ink);
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: var(--f-head);
+        font-size: clamp(15px, 1.8vw, 22px);
+        color: #fff;
+        flex-shrink: 0;
+      }
+
+      .step-t {
+        font-family: var(--f-body);
+        font-size: clamp(16px, 1.9vw, 24px);
+        color: var(--ink);
+        font-weight: 500;
+        line-height: 1.4;
+      }
+
+      /* ============================================================
+     BULLET ROWS
+     ============================================================ */
+      .rows {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .row {
+        display: flex;
+        align-items: flex-start;
+        gap: 3%;
+        padding: clamp(10px, 1.3vw, 20px) 0;
+        border-bottom: 1px solid #d1d5db;
+        font-family: var(--f-body);
+        font-size: var(--sz-sub);
+        color: var(--ink);
+        line-height: 1.45;
+      }
+      .row:last-child {
+        border: none;
+      }
+
+      .dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        border: 2px solid var(--ink);
+        flex-shrink: 0;
+        margin-top: 0.5em;
+      }
+      .dot.r {
+        background: var(--red);
+      }
+      .dot.b {
+        background: var(--blue);
+      }
+      .dot.g {
+        background: var(--green);
+      }
+      .dot.o {
+        background: var(--orange);
+      }
+
+      /* ============================================================
+     QUOTE / CALLOUT
+     ============================================================ */
+      .quote {
+        background: var(--yellow);
+        border: 2px solid var(--ink);
+        border-radius: 4px;
+        box-shadow: var(--sh-lg);
+        padding: 5% 6%;
+        font-family: var(--f-body);
+        font-size: clamp(17px, 2.2vw, 29px);
+        color: var(--ink);
+        line-height: 1.55;
+        font-weight: 600;
+      }
+      .quote-purple {
+        background: var(--purple);
+      }
+
+      /* ============================================================
+     PILLS
+     ============================================================ */
+      .pill {
+        display: inline-block;
+        background: var(--surface);
+        border: 2px solid var(--ink);
+        border-radius: 3px;
+        box-shadow: var(--sh-sm);
+        padding: 0.35em 0.9em;
+        font-family: var(--f-body);
+        font-size: clamp(14px, 1.6vw, 20px);
+        font-weight: 700;
+        color: var(--ink);
+        margin: 0.2em 0.2em;
+      }
+
+      /* ============================================================
+     PROGRESS + NAV
+     ============================================================ */
+      #progress {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        height: 5px;
+        background: var(--ink);
+        transition: width 0.38s ease;
+        z-index: 10;
+      }
+
+      #nav-dots {
+        position: absolute;
+        bottom: 3%;
+        right: 3%;
+        display: flex;
+        gap: 1.5%;
+        align-items: center;
+        z-index: 10;
+      }
+
+      .nav-dot {
+        width: clamp(6px, 0.7vw, 9px);
+        height: clamp(6px, 0.7vw, 9px);
+        border-radius: 50%;
+        background: #bbbdb5;
+        border: 1.5px solid var(--ink);
+        transition: background 0.25s, transform 0.25s;
+      }
+      .nav-dot.on {
+        background: var(--ink);
+        transform: scale(1.35);
+      }
+
+      #hint {
+        position: absolute;
+        bottom: 2.8%;
+        left: 50%;
+        transform: translateX(-50%);
+        font-family: var(--f-body);
+        font-size: clamp(11px, 1.1vw, 14px);
+        color: #aaaaaa;
+        letter-spacing: 0.05em;
+        z-index: 10;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="deck">
+      <div id="progress"></div>
+
+      <!-- TITLE SLIDE -->
+      <div class="slide active">
+        <div class="tag">HackYourFuture Denmark</div>
+        <h1>Agile<br /><span style="color: var(--green)">Teamwork</span></h1>
+        <div class="sub" style="margin-bottom: 7%">Working together, shipping fast, and learning as a team</div>
+        <div>
+          <span class="pill">Agile Manifesto</span>
+          <span class="pill">Scrum values</span>
+          <span class="pill">Teamwork in action</span>
+        </div>
+      </div>
+
+      <!-- AGENDA -->
+      <div class="slide">
+        <div class="tag">Today</div>
+        <h2 style="margin-bottom: 6%">What we&rsquo;re covering</h2>
+        <div class="steps">
+          <div class="step">
+            <div class="step-n">1</div>
+            <div class="step-t">Fundamentals</div>
+          </div>
+          <div class="step">
+            <div class="step-n">2</div>
+            <div class="step-t">Split into teams & pick a project</div>
+          </div>
+          <div class="step">
+            <div class="step-n">3</div>
+            <div class="step-t">Develop, reflect, and learn. Repeat.</div>
+          </div>
+          <div class="step">
+            <div class="step-n">4</div>
+            <div class="step-t">Workshop reflections</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- AGILE MANIFESTO -->
+      <div class="slide">
+        <div class="band">Part 01 &middot; Fundamentals</div>
+        <h2 style="margin-bottom: 6%">The Agile Manifesto</h2>
+        <div class="rows">
+          <div class="row">
+            <div class="dot b"></div>
+            <div><strong>Individuals and interactions</strong> over processes and tools</div>
+          </div>
+          <div class="row">
+            <div class="dot b"></div>
+            <div><strong>Working software</strong> over comprehensive documentation</div>
+          </div>
+          <div class="row">
+            <div class="dot b"></div>
+            <div><strong>Customer collaboration</strong> over contract negotiation</div>
+          </div>
+          <div class="row">
+            <div class="dot b"></div>
+            <div><strong>Responding to change</strong> over following a plan</div>
+          </div>
+        </div>
+        <div class="sub" style="margin-top: 5%; color: var(--muted)">
+          That is, while there is value in the items on the right,
+          <strong style="color: var(--ink)">we value the items on the left more.</strong>
+        </div>
+        <div class="sub" style="margin-top: 5%; color: #999; font-size: clamp(13px, 1.3vw, 17px)">
+          Learn more:
+          <a href="https://agilemanifesto.org/principles.html" target="_blank" style="color: var(--blue); text-decoration: none; font-weight: 600"
+            >The 12 Agile Principles</a
+          >
+        </div>
+      </div>
+
+      <!-- SCRUM VALUES -->
+      <div class="slide">
+        <div class="band">Part 01 &middot; Fundamentals</div>
+        <h2 style="margin-bottom: 6%">The five values</h2>
+        <div class="cols3">
+          <div class="card" style="border-color: var(--green); box-shadow: 4px 4px 0 var(--green)">
+            <div class="card-title" style="color: var(--green)">Commitment</div>
+            <div class="card-body">Team members dedicate themselves to achieving the sprint goals and supporting each other.</div>
+          </div>
+          <div class="card" style="border-color: var(--blue); box-shadow: 4px 4px 0 var(--blue)">
+            <div class="card-title" style="color: var(--blue)">Focus</div>
+            <div class="card-body">Keep attention on the sprint goal and the work that matters most right now.</div>
+          </div>
+          <div class="card" style="border-color: var(--orange); box-shadow: 4px 4px 0 var(--orange)">
+            <div class="card-title" style="color: var(--orange)">Openness</div>
+            <div class="card-body">Share what&rsquo;s working, what isn&rsquo;t, and ask for help without fear.</div>
+          </div>
+          <div class="card" style="border-color: var(--red); box-shadow: 4px 4px 0 var(--red)">
+            <div class="card-title" style="color: var(--red)">Respect</div>
+            <div class="card-body">Value each team member&rsquo;s knowledge, skills, and effort.</div>
+          </div>
+          <div class="card" style="border-color: #8b5cf6; box-shadow: 4px 4px 0 #8b5cf6">
+            <div class="card-title" style="color: #8b5cf6">Courage</div>
+            <div class="card-body">Make tough decisions, give honest feedback, and admit mistakes.</div>
+          </div>
+          <div class="card">
+            <div class="card-title" style="color: var(--muted)">Together</div>
+            <div class="card-body">These values make teamwork possible and sustainable.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SCRUM EVENTS -->
+      <div class="slide">
+        <div class="band">Part 01 &middot; Fundamentals</div>
+        <h2 style="margin-bottom: 6%">The Scrum events</h2>
+        <div class="steps">
+          <div class="step">
+            <div class="step-n">1</div>
+            <div class="step-t"><strong>Sprint Planning</strong> — Team agrees on what to build this sprint</div>
+          </div>
+          <div class="step">
+            <div class="step-n">2</div>
+            <div class="step-t"><strong>Daily Standup</strong> — Quick sync on progress, blockers, and plans</div>
+          </div>
+          <div class="step">
+            <div class="step-n">3</div>
+            <div class="step-t"><strong>Sprint Review</strong> — Show what we built, get feedback</div>
+          </div>
+          <div class="step">
+            <div class="step-n">4</div>
+            <div class="step-t"><strong>Retrospective</strong> — Reflect on how we worked and improve</div>
+          </div>
+        </div>
+        <div class="sub" style="margin-top: 6%">These events create the structure for your work. Make them yours.</div>
+      </div>
+
+      <!-- SCHEDULE -->
+      <div class="slide">
+        <div class="band">Your workshop today</div>
+        <h2 style="margin-bottom: 5%">Timeline</h2>
+        <div class="rows">
+          <div class="row">
+            <div class="dot b"></div>
+            <div><strong>12:15 – 12:40</strong> Presentation and setup <strong>(we are here)</strong></div>
+          </div>
+          <div class="row">
+            <div class="dot b"></div>
+            <div><strong>12:40 – 13:30</strong> Sprint 1</div>
+          </div>
+          <div class="row">
+            <div class="dot b"></div>
+            <div><strong>13:30 – 14:20</strong> Sprint 2</div>
+          </div>
+          <div class="row">
+            <div class="dot b"></div>
+            <div><strong>14:20 – 14:40</strong> Lunch</div>
+          </div>
+          <div class="row">
+            <div class="dot b"></div>
+            <div><strong>14:40 – 14:55</strong> Reflections so far</div>
+          </div>
+          <div class="row">
+            <div class="dot b"></div>
+            <div><strong>14:55 – 15:45</strong> Sprint 3</div>
+          </div>
+          <div class="row">
+            <div class="dot b"></div>
+            <div><strong>15:45 – 16:00</strong> Evaluation and sharing</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- LET'S ORGANIZE -->
+      <div class="slide">
+        <div class="band">Part 02 &middot; Set up</div>
+        <h2 style="margin-bottom: 8%">Let's organize</h2>
+        <div class="rows">
+          <div class="row">
+            <div class="dot b"></div>
+            <div><strong>Split into teams</strong></div>
+          </div>
+          <div class="row">
+            <div class="dot b"></div>
+            <div>Pick a project</div>
+          </div>
+          <div class="row">
+            <div class="dot b"></div>
+            <div>Plan your process and roles</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PROJECT IDEAS INTRO -->
+      <div class="slide">
+        <div class="band">Part 02 &middot; Project ideas</div>
+        <h2 style="margin-bottom: 5%">5 project ideas</h2>
+        <div class="sub" style="color: var(--ink); margin-bottom: 5%">
+          Pick one as a team. Start simple, focus on core features.
+          <br /><strong>Your goal: ship something that works by the end of the day.</strong>
+        </div>
+        <div class="rows">
+          <div class="row">
+            <div class="dot b"></div>
+            <div><strong>Meal Planner / Recipe Finder</strong> — Search recipes and save favorites</div>
+          </div>
+          <div class="row">
+            <div class="dot b"></div>
+            <div><strong>Movie Discovery &amp; Watchlist App</strong> — Browse and save movies</div>
+          </div>
+          <div class="row">
+            <div class="dot b"></div>
+            <div><strong>Personal Finance Tracker</strong> — Track income and expenses</div>
+          </div>
+          <div class="row">
+            <div class="dot b"></div>
+            <div><strong>Weather-Based Activity or Outfit Suggestion</strong> — Weather + smart suggestions</div>
+          </div>
+          <div class="row">
+            <div class="dot b"></div>
+            <div><strong>Transport Helper App</strong> — Look up stops and departures</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PROJECT 1: MEAL PLANNER -->
+      <div class="slide">
+        <div class="band">Part 02 &middot; Project idea 01</div>
+        <h2 style="margin-bottom: 4%; color: var(--green)">Meal Planner / Recipe Finder</h2>
+        <div class="cols">
+          <div style="display: flex; flex-direction: column; gap: 1.5vw">
+            <div class="card" style="border-color: var(--green); box-shadow: 4px 4px 0 var(--green)">
+              <div class="card-title" style="color: var(--green)">What it does</div>
+              <div class="card-body">Search recipes, view details, save favorites, and plan meals.</div>
+            </div>
+            <div class="card">
+              <div class="card-title">Feature suggestions</div>
+              <div class="card-body" style="display: flex; flex-direction: column; gap: 0.5em">
+                <div>→ Search recipes by ingredient or cuisine</div>
+                <div>→ View recipe details and instructions</div>
+                <div>→ Save favorite recipes</div>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-title">Useful APIs</div>
+            <div class="card-body" style="display: flex; flex-direction: column; gap: 0.5em">
+              <div>
+                <a href="https://www.themealdb.com/api.php" target="_blank" style="color: var(--green); text-decoration: none; font-weight: 600"
+                  >TheMealDB</a
+                >
+                — Free meal database
+              </div>
+              <div>
+                <a
+                  href="https://developer.edamam.com/edamam-recipe-api"
+                  target="_blank"
+                  style="color: var(--green); text-decoration: none; font-weight: 600"
+                  >Edamam</a
+                >
+                — Nutrition and recipes
+              </div>
+              <div>
+                <a href="https://spoonacular.com/food-api" target="_blank" style="color: var(--green); text-decoration: none; font-weight: 600"
+                  >Spoonacular</a
+                >
+                — Recipe and food API
+              </div>
+              <div>
+                <a href="https://crudcrud.com/" target="_blank" style="color: var(--green); text-decoration: none; font-weight: 600">crudcrud</a> —
+                Save favorites & data
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PROJECT 2: MOVIE DISCOVERY -->
+      <div class="slide">
+        <div class="band">Part 02 &middot; Project idea 02</div>
+        <h2 style="margin-bottom: 4%; color: var(--red)">Movie Discovery & Watchlist App</h2>
+        <div class="cols">
+          <div style="display: flex; flex-direction: column; gap: 1.5vw">
+            <div class="card" style="border-color: var(--red); box-shadow: 4px 4px 0 var(--red)">
+              <div class="card-title" style="color: var(--red)">What it does</div>
+              <div class="card-body">Browse trending movies, search titles, and save a watchlist.</div>
+            </div>
+            <div class="card">
+              <div class="card-title">Feature suggestions</div>
+              <div class="card-body" style="display: flex; flex-direction: column; gap: 0.5em">
+                <div>→ View trending or popular movies</div>
+                <div>→ Search for specific titles</div>
+                <div>→ Add movies to a watchlist</div>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-title">Useful APIs</div>
+            <div class="card-body" style="display: flex; flex-direction: column; gap: 0.5em">
+              <div>
+                <a href="https://developer.themoviedb.org/" target="_blank" style="color: var(--red); text-decoration: none; font-weight: 600"
+                  >TMDB</a
+                >
+                — Comprehensive movie database
+              </div>
+              <div>
+                <a href="https://www.omdbapi.com/" target="_blank" style="color: var(--red); text-decoration: none; font-weight: 600">OMDb API</a> —
+                Movie details and ratings
+              </div>
+              <div>
+                <a href="https://crudcrud.com/" target="_blank" style="color: var(--red); text-decoration: none; font-weight: 600">crudcrud</a> — Save
+                watchlist & data
+              </div>
+              <div><em>Great UI opportunity!</em></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PROJECT 3: FINANCE TRACKER -->
+      <div class="slide">
+        <div class="band">Part 02 &middot; Project idea 03</div>
+        <h2 style="margin-bottom: 4%; color: #8b5cf6">Personal Finance Tracker</h2>
+        <div class="cols">
+          <div style="display: flex; flex-direction: column; gap: 1.5vw">
+            <div class="card" style="border-color: #8b5cf6; box-shadow: 4px 4px 0 #8b5cf6">
+              <div class="card-title" style="color: #8b5cf6">What it does</div>
+              <div class="card-body">Track income and expenses, categorize them, and see summaries.</div>
+            </div>
+            <div class="card">
+              <div class="card-title">Feature suggestions</div>
+              <div class="card-body" style="display: flex; flex-direction: column; gap: 0.5em">
+                <div>→ Add/edit/delete transactions</div>
+                <div>→ Filter by category</div>
+                <div>→ View totals and balances</div>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-title">Useful APIs</div>
+            <div class="card-body" style="display: flex; flex-direction: column; gap: 0.5em">
+              <div>
+                <a href="https://crudcrud.com/" target="_blank" style="color: #8b5cf6; text-decoration: none; font-weight: 600">crudcrud</a> — Free
+                backend storage
+              </div>
+              <div>
+                <a href="https://www.exchangerate-api.com/" target="_blank" style="color: #8b5cf6; text-decoration: none; font-weight: 600"
+                  >ExchangeRate API</a
+                >
+                — Currency conversion
+              </div>
+              <div><em>Good practice for data management</em></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PROJECT 4: WEATHER-BASED SUGGESTIONS -->
+      <div class="slide">
+        <div class="band">Part 02 &middot; Project idea 04</div>
+        <h2 style="margin-bottom: 4%; color: var(--orange)">Weather-Based Activity or Outfit Suggestion</h2>
+        <div class="cols">
+          <div style="display: flex; flex-direction: column; gap: 1.5vw">
+            <div class="card" style="border-color: var(--orange); box-shadow: 4px 4px 0 var(--orange)">
+              <div class="card-title" style="color: var(--orange)">What it does</div>
+              <div class="card-body">Show weather for a location and suggest activities or outfits.</div>
+            </div>
+            <div class="card">
+              <div class="card-title">Feature suggestions</div>
+              <div class="card-body" style="display: flex; flex-direction: column; gap: 0.5em">
+                <div>→ Look up weather by city</div>
+                <div>→ Get activity or outfit suggestions</div>
+                <div>→ Save favorite locations</div>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-title">Useful APIs</div>
+            <div class="card-body" style="display: flex; flex-direction: column; gap: 0.5em">
+              <div>
+                <a href="https://openweathermap.org/api" target="_blank" style="color: var(--orange); text-decoration: none; font-weight: 600"
+                  >OpenWeatherMap</a
+                >
+                — Weather data
+              </div>
+              <div>
+                <a href="https://www.weatherapi.com/" target="_blank" style="color: var(--orange); text-decoration: none; font-weight: 600"
+                  >WeatherAPI</a
+                >
+                — Current and forecast data
+              </div>
+              <div>
+                <a href="https://crudcrud.com/" target="_blank" style="color: var(--orange); text-decoration: none; font-weight: 600">crudcrud</a> —
+                Save favorites & data
+              </div>
+              <div><em>Tip: Use logic or AI for suggestions</em></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PROJECT 5: TRANSPORT HELPER -->
+      <div class="slide">
+        <div class="band">Part 02 &middot; Project idea 05</div>
+        <h2 style="margin-bottom: 4%; color: var(--blue)">Transport Helper App</h2>
+        <div class="cols">
+          <div style="display: flex; flex-direction: column; gap: 1.5vw">
+            <div class="card" style="border-color: var(--blue); box-shadow: 4px 4px 0 var(--blue)">
+              <div class="card-title" style="color: var(--blue)">What it does</div>
+              <div class="card-body">Search for public transport stops and view upcoming departures.</div>
+            </div>
+            <div class="card">
+              <div class="card-title">Feature suggestions</div>
+              <div class="card-body" style="display: flex; flex-direction: column; gap: 0.5em">
+                <div>→ Search for a stop by name</div>
+                <div>→ View departures in real-time</div>
+                <div>→ Save favorite stops</div>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-title">Useful APIs</div>
+            <div class="card-body" style="display: flex; flex-direction: column; gap: 0.5em">
+              <div>
+                <a
+                  href="https://labs.rejseplanen.dk/hc/en-us/articles/24750139021341-Oversigt-over-udstillede-data"
+                  target="_blank"
+                  style="color: var(--blue); text-decoration: none; font-weight: 600"
+                  >Rejseplanen (DK)</a
+                >
+                — Danish public transport
+              </div>
+              <div>
+                <a href="https://developer.transportapi.com/" target="_blank" style="color: var(--blue); text-decoration: none; font-weight: 600"
+                  >TransportAPI (UK)</a
+                >
+                — UK transport data
+              </div>
+              <div>
+                <a
+                  href="https://developers.google.com/transit/gtfs-realtime"
+                  target="_blank"
+                  style="color: var(--blue); text-decoration: none; font-weight: 600"
+                  >GTFS Real-time</a
+                >
+                — Global transit feeds
+              </div>
+              <div>
+                <a href="https://crudcrud.com/" target="_blank" style="color: var(--blue); text-decoration: none; font-weight: 600">crudcrud</a> —
+                Save favorite stops
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SPRINT TIMING -->
+      <div class="slide">
+        <div class="band">Part 02 &middot; During each sprint</div>
+        <h2 style="margin-bottom: 6%">How to structure 50 minutes</h2>
+        <div class="steps">
+          <div class="step">
+            <div class="step-n">1</div>
+            <div class="step-t"><strong>5 minutes</strong> — Sprint planning: agree on what to build</div>
+          </div>
+          <div class="step">
+            <div class="step-n">2</div>
+            <div class="step-t"><strong>Sync as needed</strong> — Daily scrum: your choice how often and how</div>
+          </div>
+          <div class="step">
+            <div class="step-n">3</div>
+            <div class="step-t"><strong>30 minutes</strong> — Build: code, test, discuss, make it real</div>
+          </div>
+          <div class="step">
+            <div class="step-n">4</div>
+            <div class="step-t"><strong>10 minutes total</strong> — Demos: 5 minutes per team (2 min demo + 3 min Q&A)</div>
+          </div>
+          <div class="step">
+            <div class="step-n">5</div>
+            <div class="step-t"><strong>5 minutes</strong> — Retrospective: what went well, what to improve next sprint</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RETROSPECTIVE IDEA -->
+      <div class="slide">
+        <div class="band">Part 02 &middot; During each sprint</div>
+        <h2 style="margin-bottom: 6%">Retrospective idea</h2>
+        <div class="sub" style="color: var(--ink); margin-bottom: 3%; font-weight: 600; font-size: clamp(17px, 2vw, 26px)">Quickly rate 1–5:</div>
+        <div class="rows" style="margin-bottom: 5%">
+          <div class="row">
+            <div class="dot b"></div>
+            <div>Team work</div>
+          </div>
+          <div class="row">
+            <div class="dot b"></div>
+            <div>Clarity</div>
+          </div>
+          <div class="row">
+            <div class="dot b"></div>
+            <div>Quality</div>
+          </div>
+          <div class="row">
+            <div class="dot b"></div>
+            <div>Outcome</div>
+          </div>
+        </div>
+        <div class="sub" style="color: var(--ink)">
+          Out of the lowest scoring, <strong>brainstorm possible actions</strong> and <strong>select 1</strong> to focus on next sprint.
+        </div>
+      </div>
+
+      <!-- TEAM ROLES -->
+      <div class="slide">
+        <div class="band">Part 02 &middot; Team structure</div>
+        <h2 style="margin-bottom: 6%">Responsibilities, not silos</h2>
+        <div class="cols">
+          <div style="display: flex; flex-direction: column; gap: 1.5vw">
+            <div class="card" style="border-color: var(--green); box-shadow: 4px 4px 0 var(--green)">
+              <div class="card-title" style="color: var(--green)">1 Product Owner</div>
+              <div class="card-body">
+                Ensures direction and validates work from a user perspective. Can still write code. Focused on: what should we build?
+              </div>
+            </div>
+            <div class="card" style="border-color: var(--blue); box-shadow: 4px 4px 0 var(--blue)">
+              <div class="card-title" style="color: var(--blue)">Team co-owns Quality</div>
+              <div class="card-body">Everyone contributes to testing and quality. Focused on: does it work and is it good?</div>
+            </div>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 1.5vw">
+            <div class="card">
+              <div class="card-title">UX (Choose your model)</div>
+              <div class="card-body" style="display: flex; flex-direction: column; gap: 0.5em">
+                <div><strong>Option A:</strong> Product Owner takes on UX</div>
+                <div><strong>Option B:</strong> Co-own UX as a team</div>
+                <div style="margin-top: 0.5em; font-style: italic; color: var(--muted)">Decide what works best for your group.</div>
+              </div>
+            </div>
+            <div class="quote" style="font-size: clamp(15px, 1.9vw, 24px); padding: 4% 5%">
+              Taking a responsibility doesn&rsquo;t stop you from coding. Everyone contributes.
+            </div>
+          </div>
+        </div>
+        <div class="sub" style="margin-top: 6%">🔄 <strong>Switch roles each sprint</strong> so everyone experiences different responsibilities.</div>
+      </div>
+
+      <!-- LET'S GO -->
+      <div class="slide">
+        <div class="band">Let&rsquo;s go</div>
+        <h1 class="display" style="margin-bottom: 5%">Ready?</h1>
+        <div class="quote quote-purple" style="margin-bottom: 5%">
+          It's your time now.<br />
+          Focus on collaboration, not perfection.<br />
+          Ship, learn, and reflect.
+        </div>
+        <div class="sub" style="color: var(--ink)">
+          Remember the Scrum values: <strong>commitment, focus, openness, respect, and courage.</strong>
+          <br />
+          You&rsquo;ve got this. Let&rsquo;s create something nice.
+        </div>
+      </div>
+
+      <!-- SPRINT 1 -->
+      <div class="slide">
+        <div class="band">Sprint 1 &middot; 12:40 – 13:30</div>
+        <h2 style="margin-bottom: 6%">50-minute sprint breakdown</h2>
+        <div class="steps">
+          <div class="step">
+            <div class="step-n">1</div>
+            <div class="step-t"><strong>12:40 – 12:45</strong> — Sprint planning (5 min)</div>
+          </div>
+          <div class="step">
+            <div class="step-n">2</div>
+            <div class="step-t"><strong>12:45 – 13:15</strong> — Build + sync as needed (30 min)</div>
+          </div>
+          <div class="step">
+            <div class="step-n">3</div>
+            <div class="step-t"><strong>13:15 – 13:20</strong> — Team A demo & feedback (5 min)</div>
+          </div>
+          <div class="step">
+            <div class="step-n">4</div>
+            <div class="step-t"><strong>13:20 – 13:25</strong> — Team B demo & feedback (5 min)</div>
+          </div>
+          <div class="step">
+            <div class="step-n">5</div>
+            <div class="step-t"><strong>13:25 – 13:30</strong> — Retrospective (5 min)</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SPRINT 2 -->
+      <div class="slide">
+        <div class="band">Sprint 2 &middot; 13:30 – 14:20</div>
+        <h2 style="margin-bottom: 6%">50-minute sprint breakdown</h2>
+        <div class="steps">
+          <div class="step">
+            <div class="step-n">1</div>
+            <div class="step-t"><strong>13:30 – 13:35</strong> — Sprint planning (5 min)</div>
+          </div>
+          <div class="step">
+            <div class="step-n">2</div>
+            <div class="step-t"><strong>13:35 – 14:05</strong> — Build + sync as needed (30 min)</div>
+          </div>
+          <div class="step">
+            <div class="step-n">3</div>
+            <div class="step-t"><strong>14:05 – 14:10</strong> — Team B demo & feedback (5 min)</div>
+          </div>
+          <div class="step">
+            <div class="step-n">4</div>
+            <div class="step-t"><strong>14:10 – 14:15</strong> — Team A demo & feedback (5 min)</div>
+          </div>
+          <div class="step">
+            <div class="step-n">5</div>
+            <div class="step-t"><strong>14:15 – 14:20</strong> — Retrospective (5 min)</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- LUNCH -->
+      <div class="slide">
+        <div class="band">Break</div>
+        <div style="text-align: center; font-size: clamp(60px, 12vw, 120px); margin-bottom: 3%">🍽️</div>
+        <h1 class="display" style="margin-bottom: 5%; text-align: center">Lunch</h1>
+        <div class="quote" style="margin-bottom: 5%; text-align: center; font-size: clamp(20px, 2.5vw, 32px)">14:20 – 14:40</div>
+        <div class="sub" style="color: var(--ink); text-align: center">
+          Take a break. Recharge. Reflect on what you've built so far.
+          <br />
+          <strong>See you back at 14:40 for reflections.</strong>
+        </div>
+      </div>
+
+      <!-- REFLECTIONS -->
+      <div class="slide">
+        <div class="band">Midpoint</div>
+        <h2 style="margin-bottom: 8%">Reflections · 14:40 – 14:55</h2>
+        <div class="rows">
+          <div class="row">
+            <div class="dot b"></div>
+            <div><strong>What's working?</strong></div>
+          </div>
+          <div class="row">
+            <div class="dot b"></div>
+            <div><strong>What's hard?</strong></div>
+          </div>
+          <div class="row">
+            <div class="dot b"></div>
+            <div><strong>Any questions?</strong></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SPRINT 3 -->
+      <div class="slide">
+        <div class="band">Sprint 3 &middot; 14:55 – 15:45</div>
+        <h2 style="margin-bottom: 6%">50-minute sprint breakdown</h2>
+        <div class="steps">
+          <div class="step">
+            <div class="step-n">1</div>
+            <div class="step-t"><strong>14:55 – 15:00</strong> — Sprint planning (5 min)</div>
+          </div>
+          <div class="step">
+            <div class="step-n">2</div>
+            <div class="step-t"><strong>15:00 – 15:30</strong> — Build + sync as needed (30 min)</div>
+          </div>
+          <div class="step">
+            <div class="step-n">3</div>
+            <div class="step-t"><strong>15:30 – 15:35</strong> — Team A demo & feedback (5 min)</div>
+          </div>
+          <div class="step">
+            <div class="step-n">4</div>
+            <div class="step-t"><strong>15:35 – 15:40</strong> — Team B demo & feedback (5 min)</div>
+          </div>
+          <div class="step">
+            <div class="step-n">5</div>
+            <div class="step-t"><strong>15:40 – 15:45</strong> — Retrospective (5 min)</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- WORKSHOP REFLECTIONS -->
+      <div class="slide">
+        <div class="band">Part 04 · Wrap up</div>
+        <h2 style="margin-bottom: 6%">Workshop reflections</h2>
+        <div class="rows">
+          <div class="row">
+            <div class="dot b"></div>
+            <div><strong>Bureucracy, Agility, or Chaos?</strong></div>
+          </div>
+          <div class="row">
+            <div class="dot b"></div>
+            <div><strong>What was hardest?</strong></div>
+          </div>
+          <div class="row">
+            <div class="dot b"></div>
+            <div><strong>What is 1 thing you will take away from today's workshop?</strong></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- OBSERVATIONS -->
+      <div class="slide">
+        <div class="band">Some takeaways</div>
+        <h2 style="margin-bottom: 6%">My observations</h2>
+        <div class="rows">
+          <div class="row">
+            <div class="dot b"></div>
+            <div><strong>Working alone</strong> is convenient, but often limiting</div>
+          </div>
+          <div class="row">
+            <div class="dot b"></div>
+            <div><strong>Communication is key</strong> — enables teamwork, stress reduces it</div>
+          </div>
+          <div class="row">
+            <div class="dot b"></div>
+            <div><strong>Planning is hard</strong> — but creating clarity is too important</div>
+          </div>
+          <div class="row">
+            <div class="dot b"></div>
+            <div><strong>Retrospectives are easy to neglect</strong> — they are your way to gain control; agree on and take action</div>
+          </div>
+          <div class="row">
+            <div class="dot b"></div>
+            <div><strong>Sometimes we need to cut corners</strong> — long-term it bites (tech debt)</div>
+          </div>
+          <div class="row">
+            <div class="dot b"></div>
+            <div><strong>Work small and integrate early</strong> - not doing it is risky and costly</div>
+          </div>
+          <div class="row">
+            <div class="dot b"></div>
+            <div><strong>You succeed and fail as a team</strong></div>
+          </div>
+          <div class="row">
+            <div class="dot b"></div>
+            <div><strong>Working overtime is a slippery slope</strong></div>
+          </div>
+        </div>
+      </div>
+
+      <div id="nav-dots"></div>
+      <div id="hint">click anywhere to advance</div>
+    </div>
+
+    <script>
+      const TOTAL = 24;
+      const KEY = 'agile-teamwork-slide';
+      const JUMP = { 0: 0, 1: 2, 2: 5, 3: 8, 4: 6, 5: 16 };
+
+      const deck = document.getElementById('deck');
+      const bar = document.getElementById('progress');
+      const hint = document.getElementById('hint');
+      const dotsEl = document.getElementById('nav-dots');
+      const links = document.querySelectorAll('a');
+      const slides = () => document.querySelectorAll('.slide');
+      const dots = () => document.querySelectorAll('.nav-dot');
+
+      let cur = 0;
+
+      for (let i = 0; i < TOTAL; i++) {
+        const d = document.createElement('div');
+        d.className = 'nav-dot' + (i === 0 ? ' on' : '');
+        dotsEl.appendChild(d);
+      }
+
+      const saved = Number(localStorage.getItem(KEY));
+      if (Number.isInteger(saved) && saved > 0 && saved < TOTAL) go(saved);
+
+      function go(n) {
+        if (n < 0 || n >= TOTAL || n === cur) return;
+        const s = slides(),
+          d = dots();
+        s[cur].classList.remove('active');
+        s[cur].classList.add('exit');
+        setTimeout(() => s[cur].classList.remove('exit'), 420);
+        cur = Math.max(0, Math.min(TOTAL - 1, n));
+        s[cur].classList.add('active');
+        d.forEach((dot, i) => dot.classList.toggle('on', i === cur));
+        bar.style.width = (cur / (TOTAL - 1)) * 100 + '%';
+        localStorage.setItem(KEY, String(cur));
+        hint.textContent = cur === 0 ? 'click anywhere to advance' : cur === TOTAL - 1 ? '' : `${cur + 1} / ${TOTAL}`;
+      }
+
+      deck.addEventListener('click', () => {
+        if (cur < TOTAL - 1) go(cur + 1);
+      });
+
+      links.forEach(link => {
+        link.addEventListener('click', e => {
+          e.stopPropagation();
+        });
+      });
+
+      document.addEventListener('keydown', e => {
+        if (e.key in JUMP) {
+          go(JUMP[e.key]);
+          return;
+        }
+        if (e.key === ' ' || e.code === 'Space') {
+          e.preventDefault();
+          go(e.shiftKey ? cur - 1 : cur + 1);
+          return;
+        }
+        if (e.key === 'ArrowRight') go(cur + 1);
+        if (e.key === 'ArrowLeft') go(cur - 1);
+      });
+    </script>
+  </body>
+</html>
