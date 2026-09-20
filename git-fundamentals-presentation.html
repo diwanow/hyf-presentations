@@ -1,0 +1,1511 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Git Fundamentals - HackYourFuture Denmark</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&display=swap"
+      rel="stylesheet" />
+    <style>
+      /* ============================================================
+     TOKENS
+     ============================================================ */
+      :root {
+        --bg: #f7f4ef;
+        --surface: #ffffff;
+        --ink: #1a1a1a;
+        --muted: #555e6c;
+        --border: #1a1a1a;
+
+        --blue: #2563eb;
+        --blue-2: #eff6ff;
+        --yellow: #fdd764;
+        --purple: #e9e4ff;
+        --red: #dc2626;
+        --green: #16a34a;
+        --green-2: #f0fdf4;
+        --orange: #f97316;
+        --orange-2: #fef3c7;
+
+        --sh: 4px 4px 0 var(--ink);
+        --sh-sm: 2px 2px 0 var(--ink);
+        --sh-lg: 6px 6px 0 var(--ink);
+
+        --f-head: 'Archivo Black', 'Helvetica Neue', Arial, sans-serif;
+        --f-body: 'DM Sans', 'Helvetica Neue', Arial, sans-serif;
+        --f-mono: 'Courier New', monospace;
+
+        /* TV-safe sizes: nothing smaller than 16px rendered */
+        --sz-tag: clamp(14px, 1.5vw, 18px);
+        --sz-h1: clamp(40px, 6vw, 80px);
+        --sz-h2: clamp(26px, 4vw, 54px);
+        --sz-h3: clamp(28px, 5vw, 68px);
+        --sz-body: clamp(17px, 1.9vw, 25px);
+        --sz-sub: clamp(18px, 2.2vw, 28px);
+        --sz-code: clamp(15px, 1.6vw, 21px);
+      }
+
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      html,
+      body {
+        height: 100%;
+      }
+
+      body {
+        min-height: 100dvh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #dedad2;
+        font-family: var(--f-body);
+      }
+
+      /* ============================================================
+     DECK
+     ============================================================ */
+      #deck {
+        position: relative;
+        width: min(100vw, calc(100dvh * 16 / 9));
+        height: 100dvh;
+        aspect-ratio: 16 / 9;
+        overflow: hidden;
+        background: var(--bg);
+        cursor: pointer;
+        user-select: none;
+      }
+
+      /* top accent bar */
+      #deck::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 6px;
+        background: var(--ink);
+        z-index: 20;
+      }
+
+      /* ============================================================
+     SLIDES
+     ============================================================ */
+      .slide {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        padding: 6.5% 8%;
+        opacity: 0;
+        transform: translateY(14px);
+        transition: opacity 0.38s ease, transform 0.38s ease;
+        pointer-events: none;
+      }
+      .slide.active {
+        opacity: 1;
+        transform: translateY(0);
+        pointer-events: auto;
+      }
+      .slide.exit {
+        opacity: 0;
+        transform: translateY(-14px);
+      }
+
+      /* ============================================================
+     TYPE
+     ============================================================ */
+      .tag {
+        font-family: var(--f-body);
+        font-size: var(--sz-tag);
+        font-weight: 700;
+        letter-spacing: 0.11em;
+        text-transform: uppercase;
+        color: var(--muted);
+        margin-bottom: 0.9em;
+      }
+
+      /* filled pill band — used as section marker */
+      .band {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5em;
+        background: var(--ink);
+        color: #fff;
+        font-family: var(--f-body);
+        font-size: var(--sz-tag);
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        padding: 0.35em 1em;
+        border-radius: 3px;
+        margin-bottom: 1.1em;
+        align-self: flex-start;
+      }
+
+      h1 {
+        font-family: var(--f-head);
+        font-size: var(--sz-h1);
+        color: var(--ink);
+        line-height: 1;
+        margin-bottom: 0.45em;
+        letter-spacing: -0.01em;
+      }
+
+      h2 {
+        font-family: var(--f-head);
+        font-size: var(--sz-h2);
+        color: var(--ink);
+        line-height: 1.05;
+        margin-bottom: 0.45em;
+        letter-spacing: -0.01em;
+      }
+
+      .display {
+        font-size: var(--sz-h3);
+      }
+
+      .sub {
+        font-family: var(--f-body);
+        font-size: var(--sz-sub);
+        color: var(--muted);
+        line-height: 1.5;
+      }
+
+      .sub strong {
+        color: var(--ink);
+      }
+
+      /* ============================================================
+     LAYOUT
+     ============================================================ */
+      .cols {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2vw;
+      }
+      .cols3 {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 2vw;
+      }
+
+      /* ============================================================
+     CARDS
+     ============================================================ */
+      .card {
+        background: var(--surface);
+        border: 2px solid var(--ink);
+        border-radius: 4px;
+        box-shadow: var(--sh);
+        padding: clamp(14px, 2vw, 28px) 5.5%;
+        display: flex;
+        flex-direction: column;
+        gap: 0.6em;
+      }
+
+      .card-title {
+        font-family: var(--f-body);
+        font-size: clamp(15px, 1.8vw, 23px);
+        font-weight: 700;
+        color: var(--ink);
+      }
+
+      .card-body {
+        font-family: var(--f-body);
+        font-size: var(--sz-body);
+        color: var(--muted);
+        line-height: 1.5;
+      }
+
+      /* ============================================================
+     STEPS (agenda / signal rows)
+     ============================================================ */
+      .steps {
+        display: flex;
+        flex-direction: column;
+        gap: 0.2em;
+      }
+
+      .step {
+        display: flex;
+        align-items: center;
+        gap: 3.5%;
+        padding: 1.4% 0;
+        border-bottom: 1px solid #d1d5db;
+      }
+      .step:last-child {
+        border: none;
+      }
+
+      .step-n {
+        min-width: clamp(30px, 3.5vw, 46px);
+        height: clamp(30px, 3.5vw, 46px);
+        background: var(--ink);
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: var(--f-head);
+        font-size: clamp(15px, 1.8vw, 22px);
+        color: #fff;
+        flex-shrink: 0;
+      }
+
+      .step-t {
+        font-family: var(--f-body);
+        font-size: clamp(16px, 1.9vw, 24px);
+        color: var(--ink);
+        font-weight: 500;
+        line-height: 1.4;
+      }
+
+      /* ============================================================
+     BULLET ROWS
+     ============================================================ */
+      .rows {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .row {
+        display: flex;
+        align-items: flex-start;
+        gap: 3%;
+        padding: clamp(10px, 1.3vw, 20px) 0;
+        border-bottom: 1px solid #d1d5db;
+        font-family: var(--f-body);
+        font-size: var(--sz-sub);
+        color: var(--ink);
+        line-height: 1.45;
+      }
+      .row:last-child {
+        border: none;
+      }
+
+      .dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        border: 2px solid var(--ink);
+        flex-shrink: 0;
+        margin-top: 0.5em;
+      }
+      .dot.r {
+        background: var(--red);
+      }
+      .dot.b {
+        background: var(--blue);
+      }
+      .dot.g {
+        background: var(--green);
+      }
+      .dot.o {
+        background: var(--orange);
+      }
+
+      /* ============================================================
+     QUOTE / CALLOUT
+     ============================================================ */
+      .quote {
+        background: var(--yellow);
+        border: 2px solid var(--ink);
+        border-radius: 4px;
+        box-shadow: var(--sh-lg);
+        padding: 5% 6%;
+        font-family: var(--f-body);
+        font-size: clamp(17px, 2.2vw, 29px);
+        color: var(--ink);
+        line-height: 1.55;
+        font-weight: 600;
+      }
+      .quote-purple {
+        background: var(--purple);
+      }
+
+      /* ============================================================
+     PILLS
+     ============================================================ */
+      .pill {
+        display: inline-block;
+        background: var(--surface);
+        border: 2px solid var(--ink);
+        border-radius: 3px;
+        box-shadow: var(--sh-sm);
+        padding: 0.35em 0.9em;
+        font-family: var(--f-body);
+        font-size: clamp(14px, 1.6vw, 20px);
+        font-weight: 700;
+        color: var(--ink);
+        margin: 0.2em 0.2em;
+      }
+
+      /* ============================================================
+     CODE BLOCKS
+     ============================================================ */
+      .code {
+        background: #1a1a1a;
+        border: 2px solid var(--ink);
+        border-radius: 4px;
+        box-shadow: var(--sh);
+        padding: clamp(16px, 2.2vw, 26px) clamp(18px, 2.6vw, 30px);
+        font-family: var(--f-mono);
+        font-size: var(--sz-code);
+        color: #f7f4ef;
+        line-height: 1.8;
+      }
+      .code-bar {
+        display: flex;
+        gap: 6px;
+        margin-bottom: 0.9em;
+      }
+      .code-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+      }
+      .code-dot.r {
+        background: #ff5f56;
+      }
+      .code-dot.y {
+        background: #ffbd2e;
+      }
+      .code-dot.g {
+        background: #27c93f;
+      }
+      .code-line {
+        white-space: pre-wrap;
+      }
+      .c-muted {
+        color: #9aa0a6;
+      }
+      .c-red {
+        color: #f87171;
+        font-weight: 700;
+      }
+      .c-yellow {
+        color: #fbbf24;
+        font-weight: 700;
+      }
+      .c-blue {
+        color: #60a5fa;
+        font-weight: 700;
+      }
+      .c-green {
+        color: #4ade80;
+      }
+
+      /* ============================================================
+     COMMIT CHAIN DIAGRAM
+     ============================================================ */
+      .commit-chain {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .commit-node {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 0.25em;
+        width: clamp(96px, 11vw, 140px);
+        height: clamp(96px, 11vw, 140px);
+        background: var(--surface);
+        border: 3px solid var(--ink);
+        border-radius: 50%;
+        box-shadow: var(--sh);
+        padding: 0.5em;
+        text-align: center;
+        flex-shrink: 0;
+      }
+      .commit-node.head {
+        border-color: var(--blue);
+        box-shadow: 4px 4px 0 var(--blue);
+      }
+      .commit-hash {
+        font-family: var(--f-mono);
+        font-size: clamp(13px, 1.4vw, 17px);
+        font-weight: 700;
+        color: var(--ink);
+      }
+      .commit-label {
+        font-family: var(--f-body);
+        font-size: clamp(11px, 1.1vw, 14px);
+        color: var(--muted);
+        line-height: 1.2;
+      }
+      .commit-arrow {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 0 clamp(6px, 1.4vw, 16px);
+      }
+      .commit-arrow .arrow-line {
+        font-size: clamp(22px, 2.8vw, 34px);
+        color: var(--ink);
+        line-height: 1;
+      }
+      .commit-arrow .arrow-label {
+        font-family: var(--f-body);
+        font-size: clamp(10px, 1vw, 13px);
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        font-weight: 700;
+      }
+      .head-tag {
+        align-self: center;
+        margin-bottom: 0.4em;
+      }
+
+      /* ============================================================
+     TREE DIAGRAM
+     ============================================================ */
+      .tree-diagram {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      .tree-node {
+        background: var(--surface);
+        border: 2px solid var(--ink);
+        border-radius: 4px;
+        box-shadow: var(--sh-sm);
+        padding: 0.5em 1em;
+        font-family: var(--f-body);
+        font-weight: 700;
+        font-size: clamp(15px, 1.8vw, 22px);
+        color: var(--ink);
+        white-space: nowrap;
+      }
+      .tree-node.root {
+        border-color: var(--green);
+        box-shadow: 4px 4px 0 var(--green);
+        font-size: clamp(17px, 2vw, 26px);
+      }
+      .tree-line {
+        width: 2px;
+        background: var(--ink);
+        height: clamp(18px, 2.2vw, 30px);
+      }
+      .tree-row {
+        display: flex;
+        gap: clamp(18px, 3vw, 44px);
+        border-top: 2px solid var(--ink);
+        padding-top: clamp(16px, 2vw, 26px);
+      }
+      .tree-branch {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        position: relative;
+      }
+      .tree-branch::before {
+        content: '';
+        position: absolute;
+        top: calc(-1 * clamp(16px, 2vw, 26px));
+        left: 50%;
+        transform: translateX(-50%);
+        width: 2px;
+        height: clamp(16px, 2vw, 26px);
+        background: var(--ink);
+      }
+      .tree-node.shared {
+        border-color: var(--green);
+        box-shadow: 4px 4px 0 var(--green);
+      }
+      .tree-node.changed {
+        border-color: var(--orange);
+        box-shadow: 4px 4px 0 var(--orange);
+      }
+
+      /* ============================================================
+     SHA HASH TAG
+     ============================================================ */
+      .hash-wrap {
+        display: flex;
+        justify-content: center;
+      }
+      .hash-tag {
+        display: inline-flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.3em;
+        background: #1a1a1a;
+        color: #fbbf24;
+        font-family: var(--f-mono);
+        font-size: clamp(22px, 3.2vw, 38px);
+        font-weight: 700;
+        padding: 0.6em 1.1em;
+        border-radius: 8px;
+        border: 2px solid var(--ink);
+        box-shadow: var(--sh);
+      }
+      .hash-tag .hash-caption {
+        font-family: var(--f-body);
+        font-size: clamp(11px, 1.1vw, 14px);
+        color: #9aa0a6;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        font-weight: 700;
+      }
+
+      /* ============================================================
+     SPEECH BUBBLE
+     ============================================================ */
+      .speech-bubble {
+        position: relative;
+        background: var(--yellow);
+        border: 2px solid var(--ink);
+        border-radius: 14px;
+        box-shadow: var(--sh-sm);
+        padding: 0.55em 1.1em;
+        font-family: var(--f-body);
+        font-weight: 700;
+        font-size: clamp(16px, 2vw, 24px);
+        color: var(--ink);
+        white-space: nowrap;
+      }
+      .speech-bubble::before {
+        content: '';
+        position: absolute;
+        left: -14px;
+        top: 50%;
+        transform: translateY(-50%);
+        border-top: 10px solid transparent;
+        border-bottom: 10px solid transparent;
+        border-right: 14px solid var(--ink);
+      }
+      .speech-bubble::after {
+        content: '';
+        position: absolute;
+        left: -10px;
+        top: 50%;
+        transform: translateY(-50%);
+        border-top: 8px solid transparent;
+        border-bottom: 8px solid transparent;
+        border-right: 12px solid var(--yellow);
+      }
+
+      /* ============================================================
+     PROGRESS + NAV
+     ============================================================ */
+      #progress {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        height: 5px;
+        background: var(--ink);
+        transition: width 0.38s ease;
+        z-index: 10;
+      }
+
+      #nav-dots {
+        position: absolute;
+        bottom: 3%;
+        right: 3%;
+        display: flex;
+        gap: 1.5%;
+        align-items: center;
+        z-index: 10;
+      }
+
+      .nav-dot {
+        width: clamp(6px, 0.7vw, 9px);
+        height: clamp(6px, 0.7vw, 9px);
+        border-radius: 50%;
+        background: #bbbdb5;
+        border: 1.5px solid var(--ink);
+        transition: background 0.25s, transform 0.25s;
+      }
+      .nav-dot.on {
+        background: var(--ink);
+        transform: scale(1.35);
+      }
+
+      #hint {
+        position: absolute;
+        bottom: 2.8%;
+        left: 50%;
+        transform: translateX(-50%);
+        font-family: var(--f-body);
+        font-size: clamp(11px, 1.1vw, 14px);
+        color: #aaaaaa;
+        letter-spacing: 0.05em;
+        z-index: 10;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="deck">
+      <div id="progress"></div>
+
+      <!-- TITLE SLIDE -->
+      <div class="slide active">
+        <div class="tag">HackYourFuture Denmark &middot; Git, Week 1</div>
+        <h1>Version Control<br /><span style="color: var(--blue)">with Git</span></h1>
+        <div class="sub" style="margin-bottom: 1.5%">Session lead: Dimitar Dimitrov</div>
+        <div class="sub" style="margin-bottom: 7%">From your first commit to your first pull request</div>
+        <div>
+          <span class="pill">Git basics</span>
+          <span class="pill">Branching &amp; PRs</span>
+          <span class="pill">Collaboration</span>
+        </div>
+      </div>
+
+      <!-- AGENDA -->
+      <div class="slide">
+        <div class="tag">Today</div>
+        <h2 style="margin-bottom: 6%">What we&rsquo;re covering</h2>
+        <div class="steps">
+          <div class="step">
+            <div class="step-n">1</div>
+            <div class="step-t">Preparation recap — questions &amp; experiences</div>
+          </div>
+          <div class="step">
+            <div class="step-n">2</div>
+            <div class="step-t">Git &amp; GitHub fundamentals</div>
+          </div>
+          <div class="step">
+            <div class="step-n">3</div>
+            <div class="step-t">Branches, commits &amp; pull requests</div>
+          </div>
+          <div class="step">
+            <div class="step-n">4</div>
+            <div class="step-t">Collaboration: merge conflicts &amp; shared branches</div>
+          </div>
+          <div class="step">
+            <div class="step-n">5</div>
+            <div class="step-t">Hands-on exercises</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PREPARATION RECAP -->
+      <div class="slide">
+        <div class="band">Before we start</div>
+        <h2 style="margin-bottom: 1%">Preparation recap</h2>
+        <div class="sub" style="margin-bottom: 2%">
+          You read up on version control &amp; Git, created a GitHub account, and installed Git before today.
+        </div>
+        <div class="rows">
+          <div class="row">
+            <div class="dot b"></div>
+            <div>What issues did you face?</div>
+          </div>
+          <div class="row">
+            <div class="dot b"></div>
+            <div>What made you feel least comfortable?</div>
+          </div>
+          <div class="row">
+            <div class="dot b"></div>
+            <div>What did you find the most fascinating?</div>
+          </div>
+          <div class="row">
+            <div class="dot b"></div>
+            <div>What would you like to know more about?</div>
+          </div>
+        </div>
+        <div class="quote" style="margin-top: 1%">
+            3 minutes to exchange your experiences with the person next to you. <br />
+            We then discuss as a group.</div>
+      </div>
+
+      <!-- WHAT IS VERSION CONTROL -->
+      <div class="slide">
+        <div class="band">Part 01 &middot; Fundamentals</div>
+        <h2 style="margin-bottom: 6%">What is version control?</h2>
+        <div class="quote quote-purple" style="margin-bottom: 5%">
+          Like a library holding every version of every file you&rsquo;ve ever saved.
+        </div>
+        <div class="rows">
+          <div class="row">
+            <div class="dot b"></div>
+            <div>Go back to older versions if something goes wrong</div>
+          </div>
+          <div class="row">
+            <div class="dot b"></div>
+            <div>See who made each change, and when</div>
+          </div>
+          <div class="row">
+            <div class="dot b"></div>
+            <div>Work with others without overwriting each other&rsquo;s work</div>
+          </div>
+        </div>
+        <div class="sub" style="margin-top: 5%">👀 Quick demo: Document version history</div>
+      </div>
+
+      <!-- GIT VS GITHUB -->
+      <div class="slide">
+        <div class="band">Part 01 &middot; Fundamentals</div>
+        <h2 style="margin-bottom: 6%">Git vs. GitHub</h2>
+        <div class="cols">
+          <div class="card" style="border-color: var(--orange); box-shadow: 4px 4px 0 var(--orange)">
+            <div class="card-title" style="color: var(--orange)">Git</div>
+            <div class="card-body" style="display: flex; flex-direction: column; gap: 0.5em">
+              <div>→ Version control software on your computer</div>
+              <div>→ Works offline — no internet needed</div>
+              <div>→ Command-line based, with GUI alternatives (GitHub Desktop, GitKraken, SourceTree)</div>
+            </div>
+          </div>
+          <div class="card" style="border-color: var(--blue); box-shadow: 4px 4px 0 var(--blue)">
+            <div class="card-title" style="color: var(--blue)">GitHub</div>
+            <div class="card-body" style="display: flex; flex-direction: column; gap: 0.5em">
+              <div>→ Website that hosts Git repositories in the cloud</div>
+              <div>→ Web interface for viewing code and changes</div>
+              <div>→ Collaboration tools — pull requests, issues, comments</div>
+              <div>→ Social coding — followers, stars, forks</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CONFIGURE GIT -->
+      <div class="slide">
+        <div class="band">Part 01 &middot; Fundamentals</div>
+        <h2 style="margin-bottom: 5%">Configure Git</h2>
+        <div class="sub" style="margin-bottom: 4%">Already installed from the prep materials? Let&rsquo;s set your identity.</div>
+        <div class="code">
+          <div class="code-bar">
+            <div class="code-dot r"></div>
+            <div class="code-dot y"></div>
+            <div class="code-dot g"></div>
+          </div>
+          <div class="code-line">git config --global user.name <span class="c-green">"Your Name"</span></div>
+          <div class="code-line">git config --global user.email <span class="c-green">"you@example.com"</span></div>
+          <div class="code-line">git config --global core.editor <span class="c-green">"code -w"</span></div>
+          <div class="code-line c-muted"># without -w the commit is aborted with an empty message</div>
+        </div>
+      </div>
+
+      <!-- COMMAND LINE BASICS -->
+      <div class="slide">
+        <div class="band">Part 01 &middot; Fundamentals</div>
+        <h2 style="margin-bottom: 6%">Command line basics</h2>
+        <div class="steps">
+          <div class="step">
+            <div class="step-n">1</div>
+            <div class="step-t"><strong>pwd</strong> — where am I?</div>
+          </div>
+          <div class="step">
+            <div class="step-n">2</div>
+            <div class="step-t"><strong>ls</strong> — what&rsquo;s in this folder?</div>
+          </div>
+          <div class="step">
+            <div class="step-n">3</div>
+            <div class="step-t"><strong>cd &lt;folder&gt;</strong> / <strong>cd ..</strong> — move around</div>
+          </div>
+          <div class="step">
+            <div class="step-n">4</div>
+            <div class="step-t"><strong>mkdir &lt;name&gt;</strong> — create a folder</div>
+          </div>
+        </div>
+        <div class="sub" style="margin-top: 6%">Quick exercise: navigate to a folder, create one, and list its contents.</div>
+      </div>
+
+      <!-- REPOSITORY -->
+      <div class="slide">
+        <div class="band">Part 01 &middot; Fundamentals</div>
+        <h2 style="margin-bottom: 5%">What is a repository?</h2>
+        <div class="sub" style="margin-bottom: 4%">Where Git stores your project&rsquo;s full history — every commit, branch, and change.</div>
+        <div class="code" style="margin-bottom: 5%">
+          <div class="code-bar">
+            <div class="code-dot r"></div>
+            <div class="code-dot y"></div>
+            <div class="code-dot g"></div>
+          </div>
+          <div class="code-line">git init <span class="c-muted"># turn an existing folder into a repository</span></div>
+          <div class="code-line">git clone &lt;url&gt; <span class="c-muted"># download a copy of one that already exists</span></div>
+        </div>
+        <div class="quote">
+          🏆 Golden rule: always run <strong>git status</strong> before <strong>git init</strong>. If it errors, you&rsquo;re safely outside a repo.
+        </div>
+      </div>
+
+      <!-- THE COMMIT: 1/4 SNAPSHOT (TREE) -->
+      <div class="slide">
+        <div class="band">Part 01 &middot; Fundamentals</div>
+        <h2 style="margin-bottom: 4%">What&rsquo;s inside a commit?</h2>
+        <div class="sub" style="margin-bottom: 4%">A commit is a permanent snapshot of your files, linked to the one right before it.</div>
+        <div class="tree-diagram" style="margin-bottom: 4%">
+          <div class="tree-node root">🌳 tree</div>
+          <div class="tree-line"></div>
+          <div class="tree-row">
+            <div class="tree-branch">
+              <div class="tree-node">📄 index.html</div>
+            </div>
+            <div class="tree-branch">
+              <div class="tree-node">📄 styles.css</div>
+            </div>
+            <div class="tree-branch">
+              <div class="tree-node">📄 app.js</div>
+            </div>
+          </div>
+        </div>
+        <div class="quote quote-purple">📸 A snapshot of all your files and folders at that point in time — Git calls this a <strong>tree</strong>.</div>
+      </div>
+
+      <!-- THE COMMIT: 2/4 PARENT POINTER -->
+      <div class="slide">
+        <div class="band">Part 01 &middot; Fundamentals</div>
+        <h2 style="margin-bottom: 3%">What&rsquo;s inside a commit?</h2>
+        <div style="margin-bottom: 3%">
+          <span class="pill" style="opacity: 0.5">🌳 Snapshot (tree)</span>
+        </div>
+        <div class="commit-chain" style="margin-bottom: 4%">
+          <div class="commit-node">
+            <div class="commit-label">Parent commit</div>
+          </div>
+          <div class="commit-arrow">
+            <div class="arrow-line">&larr;</div>
+            <div class="arrow-label">parent</div>
+          </div>
+          <div class="commit-node head">
+            <div class="commit-label">This commit</div>
+          </div>
+        </div>
+        <div class="quote quote-purple">🔗 A pointer back to the previous commit — its <strong>parent</strong>.</div>
+      </div>
+
+      <!-- THE COMMIT: 3/4 SHA HASH -->
+      <div class="slide">
+        <div class="band">Part 01 &middot; Fundamentals</div>
+        <h2 style="margin-bottom: 3%">What&rsquo;s inside a commit?</h2>
+        <div style="margin-bottom: 3%">
+          <span class="pill" style="opacity: 0.5">🌳 Snapshot (tree)</span>
+          <span class="pill" style="opacity: 0.5">🔗 Points to parent</span>
+        </div>
+        <div class="hash-wrap" style="margin-bottom: 4%">
+          <div class="hash-tag">
+            d4e5f6a
+            <div class="hash-caption">SHA hash</div>
+          </div>
+        </div>
+        <div class="quote quote-purple">🔑 A unique <strong>SHA hash</strong> that identifies it — like a fingerprint.</div>
+      </div>
+
+      <!-- THE COMMIT: 4/4 METADATA + PUTTING IT TOGETHER -->
+      <div class="slide">
+        <div class="band">Part 01 &middot; Fundamentals</div>
+        <h2 style="margin-bottom: 3%">What&rsquo;s inside a commit?</h2>
+        <div style="margin-bottom: 3%">
+          <span class="pill" style="opacity: 0.5">🌳 Snapshot (tree)</span>
+          <span class="pill" style="opacity: 0.5">🔗 Points to parent</span>
+          <span class="pill" style="opacity: 0.5">🔑 Unique SHA hash</span>
+        </div>
+        <div class="quote quote-purple" style="margin-bottom: 4%">🧾 <strong>Metadata</strong> — author, timestamp, and a commit message.</div>
+        <div class="commit-chain">
+          <div class="commit-node">
+            <div class="commit-hash">a1b2c3d</div>
+            <div class="commit-label">Initial commit</div>
+          </div>
+          <div class="commit-arrow">
+            <div class="arrow-line">&larr;</div>
+            <div class="arrow-label">parent</div>
+          </div>
+          <div class="commit-node">
+            <div class="commit-hash">d4e5f6a</div>
+            <div class="commit-label">Add feature</div>
+          </div>
+          <div class="commit-arrow">
+            <div class="arrow-line">&larr;</div>
+            <div class="arrow-label">parent</div>
+          </div>
+          <div class="commit-node head">
+            <div class="commit-hash">7a8b9c0</div>
+            <div class="commit-label">Fix bug</div>
+          </div>
+        </div>
+        <div class="sub" style="margin-top: 3%; text-align: center">String enough commits together and you get your project&rsquo;s history.</div>
+      </div>
+
+      <!-- TREES REUSE UNCHANGED FILES -->
+      <div class="slide">
+        <div class="band">Part 01 &middot; Fundamentals</div>
+        <h2 style="margin-bottom: 3%">Trees reuse unchanged files</h2>
+        <div class="sub" style="margin-bottom: 3%">When you commit again, only changed files get a new blob — everything else is reused.</div>
+        <div class="cols" style="margin-bottom: 3%">
+          <div style="display: flex; flex-direction: column; align-items: center; gap: 0.6em">
+            <div class="tag" style="margin-bottom: 0">Commit 1</div>
+            <div class="tree-diagram">
+              <div class="tree-node root">🌳 tree</div>
+              <div class="tree-line"></div>
+              <div class="tree-row">
+                <div class="tree-branch">
+                  <div class="tree-node shared">📄 index.html</div>
+                </div>
+                <div class="tree-branch">
+                  <div class="tree-node">📄 styles.css</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div style="display: flex; flex-direction: column; align-items: center; gap: 0.6em">
+            <div class="tag" style="margin-bottom: 0">Commit 2</div>
+            <div class="tree-diagram">
+              <div class="tree-node root">🌳 tree</div>
+              <div class="tree-line"></div>
+              <div class="tree-row">
+                <div class="tree-branch">
+                  <div class="tree-node shared">📄 index.html</div>
+                </div>
+                <div class="tree-branch">
+                  <div class="tree-node changed">📄 styles.css</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="rows">
+          <div class="row">
+            <div class="dot g"></div>
+            <div><strong>index.html</strong> unchanged — both commits point to the exact same blob</div>
+          </div>
+          <div class="row">
+            <div class="dot o"></div>
+            <div><strong>styles.css</strong> changed — commit 2 points to a new blob with the updated content</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- WORKFLOW: ADD, COMMIT, PUSH -->
+      <div class="slide">
+        <div class="band">Part 01 &middot; Fundamentals</div>
+        <h2 style="margin-bottom: 4%">From edit to commit</h2>
+        <div class="sub" style="margin-bottom: 3%">Your changes move through three places before they become permanent.</div>
+        <div class="rows" style="margin-bottom: 4%">
+          <div class="row">
+            <div class="dot b"></div>
+            <div><strong>Working directory</strong> — the files you see and edit</div>
+          </div>
+          <div class="row">
+            <div class="dot b"></div>
+            <div><strong>Staging area</strong> — what <strong>git add</strong> prepares for the next commit</div>
+          </div>
+          <div class="row">
+            <div class="dot b"></div>
+            <div><strong>Repository</strong> — the permanent history <strong>git commit</strong> writes to</div>
+          </div>
+        </div>
+        <div class="code">
+          <div class="code-bar">
+            <div class="code-dot r"></div>
+            <div class="code-dot y"></div>
+            <div class="code-dot g"></div>
+          </div>
+          <div class="code-line">git status <span class="c-muted"># what changed?</span></div>
+          <div class="code-line">git add &lt;file&gt; <span class="c-muted"># stage it (or . for all)</span></div>
+          <div class="code-line">git commit -m <span class="c-green">"message"</span> <span class="c-muted"># turn the staged snapshot into a commit</span></div>
+          <div class="code-line">git push <span class="c-muted"># send your commits to GitHub</span></div>
+        </div>
+      </div>
+
+      <!-- EXERCISE: FIRST COMMITS -->
+      <div class="slide">
+        <div class="band">Practice &middot; 5 minutes</div>
+        <h2 style="margin-bottom: 5%">Exercise: your first commits</h2>
+        <div class="steps">
+          <div class="step">
+            <div class="step-n">1</div>
+            <div class="step-t">Create a folder <strong>git-practice</strong>, <strong>cd</strong> into it, and run <strong>git init</strong></div>
+          </div>
+          <div class="step">
+            <div class="step-n">2</div>
+            <div class="step-t">Create <strong>apples.txt</strong>, <strong>bananas.txt</strong>, <strong>oranges.txt</strong> — add a line of text to each</div>
+          </div>
+          <div class="step">
+            <div class="step-n">3</div>
+            <div class="step-t">Add and commit <strong>apples.txt</strong> on its own</div>
+          </div>
+          <div class="step">
+            <div class="step-n">4</div>
+            <div class="step-t">Add and commit <strong>bananas.txt</strong> and <strong>oranges.txt</strong> together</div>
+          </div>
+          <div class="step">
+            <div class="step-n">5</div>
+            <div class="step-t">Add more text to <strong>apples.txt</strong>, then add and commit again</div>
+          </div>
+        </div>
+        <div class="sub" style="margin-top: 4%">Run <strong>git log --oneline</strong> and <strong>git status</strong> between steps — what changes each time?</div>
+      </div>
+
+      <!-- BRANCHES -->
+      <div class="slide">
+        <div class="band">Part 01 &middot; Fundamentals</div>
+        <h2 style="margin-bottom: 3%">Branches</h2>
+        <div class="sub" style="margin-bottom: 4%">A branch is just a name — but the commit it points to keeps moving.</div>
+        <div class="cols" style="margin-bottom: 4%">
+          <div style="display: flex; flex-direction: column; align-items: center; gap: 0.8em">
+            <div class="tag" style="margin-bottom: 0">1 &middot; Branch out from main</div>
+            <div style="display: flex; align-items: center; gap: 0.8em">
+              <div style="display: flex; flex-direction: column; align-items: center; gap: 0.35em">
+                <div class="hash-tag" style="padding: 0.3em 0.7em; font-size: clamp(13px, 1.5vw, 17px)">a1b2c3d</div>
+                <span class="pill" style="opacity: 0.6; font-size: clamp(11px, 1.2vw, 14px); padding: 0.2em 0.6em">main</span>
+              </div>
+              <div class="speech-bubble" style="font-size: clamp(13px, 1.5vw, 18px); padding: 0.4em 0.8em">🧽 "I&rsquo;ll call you Bob."</div>
+            </div>
+          </div>
+          <div style="display: flex; flex-direction: column; align-items: center; gap: 0.8em">
+            <div class="tag" style="margin-bottom: 0">2 &middot; We commit</div>
+            <div style="display: flex; align-items: center; gap: 0.6em">
+              <div style="display: flex; flex-direction: column; align-items: center; gap: 0.35em">
+                <div class="hash-tag" style="padding: 0.3em 0.7em; font-size: clamp(13px, 1.5vw, 17px); opacity: 0.5">a1b2c3d</div>
+                <span class="pill" style="opacity: 0.5; font-size: clamp(11px, 1.2vw, 14px); padding: 0.2em 0.6em">main</span>
+              </div>
+              <div class="commit-arrow" style="padding: 0">
+                <div class="arrow-line" style="font-size: clamp(18px, 2.2vw, 26px)">&larr;</div>
+                <div class="arrow-label">parent</div>
+              </div>
+              <div class="hash-tag" style="padding: 0.3em 0.7em; font-size: clamp(13px, 1.5vw, 17px)">d4e5f6a</div>
+              <div class="speech-bubble" style="font-size: clamp(13px, 1.5vw, 18px); padding: 0.4em 0.8em">🧽 "I&rsquo;ll call you Bob instead."</div>
+            </div>
+          </div>
+        </div>
+        <div class="code">
+          <div class="code-bar">
+            <div class="code-dot r"></div>
+            <div class="code-dot y"></div>
+            <div class="code-dot g"></div>
+          </div>
+          <div class="code-line">git branch &lt;name&gt; <span class="c-muted"># give the current commit a name</span></div>
+          <div class="code-line">git switch &lt;name&gt; <span class="c-muted"># move HEAD to that name</span></div>
+          <div class="code-line">git switch -c &lt;name&gt; <span class="c-muted"># create + switch in one</span></div>
+          <div class="code-line">git push -u origin &lt;name&gt; <span class="c-muted"># publish it</span></div>
+        </div>
+      </div>
+
+      <!-- PULL REQUESTS -->
+      <div class="slide">
+        <div class="band">Part 01 &middot; Fundamentals</div>
+        <h2 style="margin-bottom: 6%">Pull requests</h2>
+        <div class="steps">
+          <div class="step">
+            <div class="step-n">1</div>
+            <div class="step-t"><strong>Create a PR</strong> — propose merging your branch into main</div>
+          </div>
+          <div class="step">
+            <div class="step-n">2</div>
+            <div class="step-t"><strong>Review</strong> — comment, approve, or request changes</div>
+          </div>
+          <div class="step">
+            <div class="step-n">3</div>
+            <div class="step-t"><strong>Merge</strong> — combine the changes into main</div>
+          </div>
+          <div class="step">
+            <div class="step-n">4</div>
+            <div class="step-t"><strong>Update local main</strong> — git pull origin main</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- FORKS -->
+      <div class="slide">
+        <div class="band">Part 01 &middot; Fundamentals</div>
+        <h2 style="margin-bottom: 6%">Forks</h2>
+        <div class="sub" style="margin-bottom: 5%">Your own copy of someone else&rsquo;s repository — on your GitHub account.</div>
+        <div class="rows">
+          <div class="row">
+            <div class="dot b"></div>
+            <div>Contribute to projects without write access</div>
+          </div>
+          <div class="row">
+            <div class="dot b"></div>
+            <div>Experiment freely, then propose changes back via PR</div>
+          </div>
+          <div class="row">
+            <div class="dot b"></div>
+            <div>This is how you&rsquo;ll submit your assignments</div>
+          </div>
+        </div>
+      </div>
+
+<!-- EXERCISE 1: FORK, CLONE & FIRST PR -->
+      <div class="slide">
+        <div class="band">Practice &middot; Exercise 1</div>
+        <h2 style="margin-bottom: 5%">Fork, clone &amp; your first PR</h2>
+        <div class="steps">
+          <div class="step">
+            <div class="step-n">1</div>
+            <div class="step-t">Fork the assignment repo template and clone it locally</div>
+          </div>
+          <div class="step">
+            <div class="step-n">2</div>
+            <div class="step-t">Create and switch to a new branch: <strong>html-and-css</strong></div>
+          </div>
+          <div class="step">
+            <div class="step-n">3</div>
+            <div class="step-t">Add last week&rsquo;s HTML/CSS exercises to <strong>html-css/week1</strong></div>
+          </div>
+          <div class="step">
+            <div class="step-n">4</div>
+            <div class="step-t">Commit as you go — one commit per folder or exercise</div>
+          </div>
+          <div class="step">
+            <div class="step-n">5</div>
+            <div class="step-t">Push, then open a PR from <strong>html-and-css</strong> into <strong>main</strong> (on your own fork)</div>
+          </div>
+          <div class="step">
+            <div class="step-n">6</div>
+            <div class="step-t">Have the person on your right review it — then merge once approved</div>
+          </div>
+        </div>
+        <div class="sub" style="margin-top: 4%">This is the repository and branch pattern you&rsquo;ll reuse to submit assignments all program.</div>
+      </div>
+
+      <!-- EXERCISE 3: THE ASSIGNMENT WORKFLOW, END TO END -->
+      <div class="slide">
+        <div class="band">Practice &middot; Exercise 3</div>
+        <h2 style="margin-bottom: 4%">The assignment workflow, end to end</h2>
+        <div class="steps">
+          <div class="step">
+            <div class="step-n">1</div>
+            <div class="step-t">From <strong>main</strong>, create branch <strong>git-week1/exercise-3/&lt;your-name&gt;</strong> and switch to it</div>
+          </div>
+          <div class="step">
+            <div class="step-n">2</div>
+            <div class="step-t">Create <strong>my-assignment.txt</strong> in folder <strong>git/week1/session-playground</strong>, add text to it. Stage and commit</div>
+          </div>
+          <div class="step">
+            <div class="step-n">3</div>
+            <div class="step-t">Add more text, stage, commit again. Push to GitHub</div>
+          </div>
+          <div class="step">
+            <div class="step-n">4</div>
+            <div class="step-t"><strong>On GitHub</strong>, open a PR from your branch into <strong>main</strong></div>
+          </div>
+          <div class="step">
+            <div class="step-n">5</div>
+            <div class="step-t"><strong>Locally</strong>, add more text, stage, commit, and push again</div>
+          </div>
+          <div class="step">
+            <div class="step-n">6</div>
+            <div class="step-t"><strong>On GitHub</strong>, check the PR — it now includes your latest push — then merge it</div>
+          </div>
+          <div class="step">
+            <div class="step-n">7</div>
+            <div class="step-t"><strong></strong>Locally</strong>, switch to <strong>main</strong> and run <strong>git pull origin main</strong> to update it</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- COLLABORATION INTRO -->
+      <div class="slide">
+        <div class="band">Part 02 &middot; Collaboration</div>
+        <h1 class="display" style="margin-bottom: 5%">Where groups<br />struggled last time</h1>
+        <div class="sub">Merge conflicts, and two people working on the same branch — let&rsquo;s fix that today.</div>
+      </div>
+
+      <!-- WHAT IS A MERGE CONFLICT -->
+      <div class="slide">
+        <div class="band">Part 02 &middot; Collaboration</div>
+        <h2 style="margin-bottom: 5%">What is a merge conflict?</h2>
+        <div class="sub" style="margin-bottom: 5%">
+          Git can&rsquo;t automatically decide how to combine changes — usually because two people edited the same lines.
+        </div>
+        <div class="rows">
+          <div class="row">
+            <div class="dot r"></div>
+            <div>Two branches changed the same part of a file</div>
+          </div>
+          <div class="row">
+            <div class="dot r"></div>
+            <div>Git pauses the merge and asks you to decide</div>
+          </div>
+          <div class="row">
+            <div class="dot r"></div>
+            <div>It&rsquo;s normal — not a sign something is broken</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ANATOMY OF A CONFLICT -->
+      <div class="slide">
+        <div class="band">Part 02 &middot; Collaboration</div>
+        <h2 style="margin-bottom: 5%">Anatomy of a conflict</h2>
+        <div class="code" style="margin-bottom: 5%">
+          <div class="code-bar">
+            <div class="code-dot r"></div>
+            <div class="code-dot y"></div>
+            <div class="code-dot g"></div>
+          </div>
+          <div class="code-line c-red">&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</div>
+          <div class="code-line">Local text kept here</div>
+          <div class="code-line c-yellow">=======</div>
+          <div class="code-line">Incoming text from the other branch</div>
+          <div class="code-line c-blue">&gt;&gt;&gt;&gt;&gt;&gt;&gt; feature-branch</div>
+        </div>
+        <div class="sub">Git marks both versions directly in the file — you decide what stays.</div>
+      </div>
+
+      <!-- RESOLVING A CONFLICT -->
+      <div class="slide">
+        <div class="band">Part 02 &middot; Collaboration</div>
+        <h2 style="margin-bottom: 6%">Resolving a conflict</h2>
+        <div class="steps">
+          <div class="step">
+            <div class="step-n">1</div>
+            <div class="step-t">Open the file(s) marked as conflicted (<strong>git status</strong> shows them)</div>
+          </div>
+          <div class="step">
+            <div class="step-n">2</div>
+            <div class="step-t">Decide what the final content should be — keep, combine, or discard</div>
+          </div>
+          <div class="step">
+            <div class="step-n">3</div>
+            <div class="step-t">Remove the <strong>&lt;&lt;&lt;&lt;&lt;&lt;&lt;</strong> <strong>=======</strong> <strong>&gt;&gt;&gt;&gt;&gt;&gt;&gt;</strong> markers</div>
+          </div>
+          <div class="step">
+            <div class="step-n">4</div>
+            <div class="step-t"><strong>git add &lt;file&gt;</strong> to mark it as resolved</div>
+          </div>
+          <div class="step">
+            <div class="step-n">5</div>
+            <div class="step-t"><strong>git commit</strong> to complete the merge</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TWO PEOPLE, ONE BRANCH -->
+      <div class="slide">
+        <div class="band">Part 02 &middot; Collaboration</div>
+        <h2 style="margin-bottom: 5%">Two people, one branch</h2>
+        <div class="sub" style="margin-bottom: 4%">Working on the same branch at the same time multiplies the chance of conflicts — and confusion.</div>
+        <div class="cols">
+          <div class="card" style="border-color: var(--red); box-shadow: 4px 4px 0 var(--red)">
+            <div class="card-title" style="color: var(--red)">Risky</div>
+            <div class="card-body" style="display: flex; flex-direction: column; gap: 0.5em">
+              <div>→ Both push at the same time — the second push is rejected</div>
+              <div>→ Force-pushing to "fix" it can erase a teammate&rsquo;s work</div>
+              <div>→ Unclear who&rsquo;s responsible for which part</div>
+            </div>
+          </div>
+          <div class="card" style="border-color: var(--green); box-shadow: 4px 4px 0 var(--green)">
+            <div class="card-title" style="color: var(--green)">Better</div>
+            <div class="card-body" style="display: flex; flex-direction: column; gap: 0.5em">
+              <div>→ git pull before you start working, and before you push</div>
+              <div>→ Split work into small, separate branches per feature/person</div>
+              <div>→ Communicate — say what file or section you&rsquo;re touching</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- COLLABORATION GOLDEN RULES -->
+      <div class="slide">
+        <div class="band">Part 02 &middot; Collaboration</div>
+        <h2 style="margin-bottom: 6%">Collaboration golden rules</h2>
+        <div class="rows">
+          <div class="row">
+            <div class="dot g"></div>
+            <div><strong>Pull</strong> before you push, and often</div>
+          </div>
+          <div class="row">
+            <div class="dot g"></div>
+            <div><strong>Small, frequent commits</strong> with clear messages</div>
+          </div>
+          <div class="row">
+            <div class="dot g"></div>
+            <div><strong>One feature/person per branch</strong> when possible</div>
+          </div>
+          <div class="row">
+            <div class="dot g"></div>
+            <div><strong>Review</strong> each other&rsquo;s PRs before merging</div>
+          </div>
+          <div class="row">
+            <div class="dot g"></div>
+            <div><strong>Communicate</strong> — don&rsquo;t let Git replace conversation</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- EXERCISES OVERVIEW -->
+      <div class="slide">
+        <div class="band">Part 03 &middot; Hands-on</div>
+        <h2 style="margin-bottom: 6%">Exercises</h2>
+        <div class="rows">
+          <div class="row">
+            <div class="dot b"></div>
+            <div><strong>1</strong> &middot; Fork, clone &amp; your first PR</div>
+          </div>
+          <div class="row">
+            <div class="dot b"></div>
+            <div><strong>2</strong> &middot; Branches, commits &amp; pushing</div>
+          </div>
+          <div class="row">
+            <div class="dot b"></div>
+            <div><strong>3</strong> &middot; The assignment workflow, end to end</div>
+          </div>
+          <div class="row">
+            <div class="dot b"></div>
+            <div><strong>4</strong> &middot; Your first Git error (and finding a fix online)</div>
+          </div>
+          <div class="row">
+            <div class="dot b"></div>
+            <div><strong>5</strong> &middot; Committing to the wrong branch</div>
+          </div>
+          <div class="row">
+            <div class="dot b"></div>
+            <div><strong>6</strong> &middot; Into the deeps — branching &amp; merging</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RESOURCES -->
+      <div class="slide">
+        <div class="band">Reference</div>
+        <h2 style="margin-bottom: 6%">Resources</h2>
+        <div class="rows">
+          <div class="row">
+            <div class="dot o"></div>
+            <div>
+              <a
+                href="https://git-scm.com/book/en/v2"
+                target="_blank"
+                style="color: var(--blue); text-decoration: none; font-weight: 600"
+                >Pro Git Book</a
+              >
+            </div>
+          </div>
+          <div class="row">
+            <div class="dot o"></div>
+            <div>
+              <a
+                href="https://github.com/HackYourFuture-CPH/program/tree/main/courses/foundation/git/week1/session-materials/cheatsheet.md"
+                target="_blank"
+                style="color: var(--blue); text-decoration: none; font-weight: 600"
+                >Cheat sheet</a
+              >
+              — commands used during the session
+            </div>
+          </div>
+          <div class="row">
+            <div class="dot o"></div>
+            <div>
+              <a
+                href="https://github.com/HackYourFuture-CPH/program/blob/main/courses/foundation/git/week1/session-materials/Git-basics.pdf"
+                target="_blank"
+                style="color: var(--blue); text-decoration: none; font-weight: 600"
+                >Git Basics</a
+              >
+              &amp;
+              <a
+                href="https://github.com/HackYourFuture-CPH/program/tree/main/courses/foundation/git/week1/session-materials/Git-branches.pdf"
+                target="_blank"
+                style="color: var(--blue); text-decoration: none; font-weight: 600"
+                >Git Branches</a
+              >
+              slides
+            </div>
+          </div>
+          <div class="row">
+            <div class="dot o"></div>
+            <div>
+              <a href="https://learngitbranching.js.org/" target="_blank" style="color: var(--blue); text-decoration: none; font-weight: 600"
+                >Learn Git Branching</a
+              >
+              — interactive branching practice
+            </div>
+          </div>
+          <div class="row">
+            <div class="dot o"></div>
+            <div>
+              <a href="https://ohmygit.org/" target="_blank" style="color: var(--blue); text-decoration: none; font-weight: 600">Oh My Git</a>
+              — open source game for learning Git
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- LET'S GO -->
+      <div class="slide">
+        <div class="band">Let&rsquo;s go</div>
+        <h1 class="display" style="margin-bottom: 5%">Ready?</h1>
+        <div class="quote quote-purple" style="margin-bottom: 5%">
+          Commit often. Pull before you push. Ask before you force.
+        </div>
+        <div class="sub" style="color: var(--ink)">
+          Questions any time — that&rsquo;s what I&rsquo;m here for.
+          <br />
+          Let&rsquo;s get hands-on.
+        </div>
+      </div>
+
+      <div id="nav-dots"></div>
+      <div id="hint">click anywhere to advance</div>
+    </div>
+
+    <script>
+      const TOTAL = 29;
+      const KEY = 'git-fundamentals-slide';
+      const JUMP = { 0: 0, 1: 1, 2: 2, 3: 3, 4: 15, 5: 21, 6: 27, 7: 28 };
+
+      const deck = document.getElementById('deck');
+      const bar = document.getElementById('progress');
+      const hint = document.getElementById('hint');
+      const dotsEl = document.getElementById('nav-dots');
+      const links = document.querySelectorAll('a');
+      const slides = () => document.querySelectorAll('.slide');
+      const dots = () => document.querySelectorAll('.nav-dot');
+
+      let cur = 0;
+
+      for (let i = 0; i < TOTAL; i++) {
+        const d = document.createElement('div');
+        d.className = 'nav-dot' + (i === 0 ? ' on' : '');
+        dotsEl.appendChild(d);
+      }
+
+      const saved = Number(localStorage.getItem(KEY));
+      if (Number.isInteger(saved) && saved > 0 && saved < TOTAL) go(saved);
+
+      function go(n) {
+        if (n < 0 || n >= TOTAL || n === cur) return;
+        const s = slides(),
+          d = dots();
+        s[cur].classList.remove('active');
+        s[cur].classList.add('exit');
+        setTimeout(() => s[cur].classList.remove('exit'), 420);
+        cur = Math.max(0, Math.min(TOTAL - 1, n));
+        s[cur].classList.add('active');
+        d.forEach((dot, i) => dot.classList.toggle('on', i === cur));
+        bar.style.width = (cur / (TOTAL - 1)) * 100 + '%';
+        localStorage.setItem(KEY, String(cur));
+        hint.textContent = cur === 0 ? 'click anywhere to advance' : cur === TOTAL - 1 ? '' : `${cur + 1} / ${TOTAL}`;
+      }
+
+      deck.addEventListener('click', () => {
+        if (cur < TOTAL - 1) go(cur + 1);
+      });
+
+      links.forEach(link => {
+        link.addEventListener('click', e => {
+          e.stopPropagation();
+        });
+      });
+
+      document.addEventListener('keydown', e => {
+        if (e.key in JUMP) {
+          go(JUMP[e.key]);
+          return;
+        }
+        if (e.key === ' ' || e.code === 'Space') {
+          e.preventDefault();
+          go(e.shiftKey ? cur - 1 : cur + 1);
+          return;
+        }
+        if (e.key === 'ArrowRight') go(cur + 1);
+        if (e.key === 'ArrowLeft') go(cur - 1);
+      });
+    </script>
+  </body>
+</html>
