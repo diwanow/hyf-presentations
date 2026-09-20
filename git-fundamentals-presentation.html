@@ -670,30 +670,42 @@
         <div class="steps">
           <div class="step">
             <div class="step-n">1</div>
-            <div class="step-t">Preparation recap — questions &amp; experiences</div>
+            <div class="step-t">Preparation recap</div>
           </div>
           <div class="step">
             <div class="step-n">2</div>
-            <div class="step-t">Git &amp; GitHub fundamentals</div>
+            <div class="step-t">Tooling overview</div>
           </div>
           <div class="step">
             <div class="step-n">3</div>
-            <div class="step-t">Branches, commits &amp; pull requests</div>
+            <div class="step-t">Git init &amp; commit</div>
           </div>
           <div class="step">
             <div class="step-n">4</div>
-            <div class="step-t">Collaboration: merge conflicts &amp; shared branches</div>
+            <div class="step-t">Branches, pull requests &amp; forks</div>
+          </div>
+          <div class="step" style="opacity: 0.6">
+            <div class="step-n" style="background: transparent; border: 2px solid var(--ink); color: var(--ink)">🍽️</div>
+            <div class="step-t">Lunch break</div>
           </div>
           <div class="step">
             <div class="step-n">5</div>
-            <div class="step-t">Hands-on exercises</div>
+            <div class="step-t">Commit guidelines</div>
+          </div>
+          <div class="step">
+            <div class="step-n">6</div>
+            <div class="step-t">Collaboration</div>
+          </div>
+          <div class="step">
+            <div class="step-n">7</div>
+            <div class="step-t">Some more exercises</div>
           </div>
         </div>
       </div>
 
       <!-- PREPARATION RECAP -->
       <div class="slide">
-        <div class="band">Before we start</div>
+        <div class="band">Part 1 &middot; Preparation recap</div>
         <h2 style="margin-bottom: 1%">Preparation recap</h2>
         <div class="sub" style="margin-bottom: 2%">
           You read up on version control &amp; Git, created a GitHub account, and installed Git before today.
@@ -723,7 +735,7 @@
 
       <!-- WHAT IS VERSION CONTROL -->
       <div class="slide">
-        <div class="band">Part 01 &middot; Fundamentals</div>
+        <div class="band">Part 2 &middot; Tooling overview</div>
         <h2 style="margin-bottom: 6%">What is version control?</h2>
         <div class="quote quote-purple" style="margin-bottom: 5%">
           Like a library holding every version of every file you&rsquo;ve ever saved.
@@ -747,7 +759,7 @@
 
       <!-- GIT VS GITHUB -->
       <div class="slide">
-        <div class="band">Part 01 &middot; Fundamentals</div>
+        <div class="band">Part 2 &middot; Tooling overview</div>
         <h2 style="margin-bottom: 6%">Git vs. GitHub</h2>
         <div class="cols">
           <div class="card" style="border-color: var(--orange); box-shadow: 4px 4px 0 var(--orange)">
@@ -772,7 +784,7 @@
 
       <!-- CONFIGURE GIT -->
       <div class="slide">
-        <div class="band">Part 01 &middot; Fundamentals</div>
+        <div class="band">Part 2 &middot; Tooling overview</div>
         <h2 style="margin-bottom: 5%">Configure Git</h2>
         <div class="sub" style="margin-bottom: 4%">Already installed from the prep materials? Let&rsquo;s set your identity.</div>
         <div class="code">
@@ -790,7 +802,7 @@
 
       <!-- COMMAND LINE BASICS -->
       <div class="slide">
-        <div class="band">Part 01 &middot; Fundamentals</div>
+        <div class="band">Part 2 &middot; Tooling overview</div>
         <h2 style="margin-bottom: 6%">Command line basics</h2>
         <div class="steps">
           <div class="step">
@@ -815,7 +827,7 @@
 
       <!-- REPOSITORY -->
       <div class="slide">
-        <div class="band">Part 01 &middot; Fundamentals</div>
+        <div class="band">Part 3 &middot; Git init &amp; commit</div>
         <h2 style="margin-bottom: 5%">What is a repository?</h2>
         <div class="sub" style="margin-bottom: 4%">Where Git stores your project&rsquo;s full history — every commit, branch, and change.</div>
         <div class="code" style="margin-bottom: 5%">
@@ -834,7 +846,7 @@
 
       <!-- THE COMMIT: 1/4 SNAPSHOT (TREE) -->
       <div class="slide">
-        <div class="band">Part 01 &middot; Fundamentals</div>
+        <div class="band">Part 3 &middot; Git init &amp; commit</div>
         <h2 style="margin-bottom: 4%">What&rsquo;s inside a commit?</h2>
         <div class="sub" style="margin-bottom: 4%">A commit is a permanent snapshot of your files, linked to the one right before it.</div>
         <div class="tree-diagram" style="margin-bottom: 4%">
@@ -857,7 +869,7 @@
 
       <!-- THE COMMIT: 2/4 PARENT POINTER -->
       <div class="slide">
-        <div class="band">Part 01 &middot; Fundamentals</div>
+        <div class="band">Part 3 &middot; Git init &amp; commit</div>
         <h2 style="margin-bottom: 3%">What&rsquo;s inside a commit?</h2>
         <div style="margin-bottom: 3%">
           <span class="pill" style="opacity: 0.5">🌳 Snapshot (tree)</span>
@@ -879,7 +891,7 @@
 
       <!-- THE COMMIT: 3/4 SHA HASH -->
       <div class="slide">
-        <div class="band">Part 01 &middot; Fundamentals</div>
+        <div class="band">Part 3 &middot; Git init &amp; commit</div>
         <h2 style="margin-bottom: 3%">What&rsquo;s inside a commit?</h2>
         <div style="margin-bottom: 3%">
           <span class="pill" style="opacity: 0.5">🌳 Snapshot (tree)</span>
@@ -896,7 +908,7 @@
 
       <!-- THE COMMIT: 4/4 METADATA + PUTTING IT TOGETHER -->
       <div class="slide">
-        <div class="band">Part 01 &middot; Fundamentals</div>
+        <div class="band">Part 3 &middot; Git init &amp; commit</div>
         <h2 style="margin-bottom: 3%">What&rsquo;s inside a commit?</h2>
         <div style="margin-bottom: 3%">
           <span class="pill" style="opacity: 0.5">🌳 Snapshot (tree)</span>
@@ -931,7 +943,7 @@
 
       <!-- TREES REUSE UNCHANGED FILES -->
       <div class="slide">
-        <div class="band">Part 01 &middot; Fundamentals</div>
+        <div class="band">Part 3 &middot; Git init &amp; commit</div>
         <h2 style="margin-bottom: 3%">Trees reuse unchanged files</h2>
         <div class="sub" style="margin-bottom: 3%">When you commit again, only changed files get a new blob — everything else is reused.</div>
         <div class="cols" style="margin-bottom: 3%">
@@ -980,7 +992,7 @@
 
       <!-- WORKFLOW: ADD, COMMIT, PUSH -->
       <div class="slide">
-        <div class="band">Part 01 &middot; Fundamentals</div>
+        <div class="band">Part 3 &middot; Git init &amp; commit</div>
         <h2 style="margin-bottom: 4%">From edit to commit</h2>
         <div class="sub" style="margin-bottom: 3%">Your changes move through three places before they become permanent.</div>
         <div class="rows" style="margin-bottom: 4%">
@@ -1041,7 +1053,7 @@
 
       <!-- BRANCHES -->
       <div class="slide">
-        <div class="band">Part 01 &middot; Fundamentals</div>
+        <div class="band">Part 4 &middot; Branches, PRs &amp; forks</div>
         <h2 style="margin-bottom: 3%">Branches</h2>
         <div class="sub" style="margin-bottom: 4%">A branch is just a name — but the commit it points to keeps moving.</div>
         <div class="cols" style="margin-bottom: 4%">
@@ -1086,7 +1098,7 @@
 
       <!-- PULL REQUESTS -->
       <div class="slide">
-        <div class="band">Part 01 &middot; Fundamentals</div>
+        <div class="band">Part 4 &middot; Branches, PRs &amp; forks</div>
         <h2 style="margin-bottom: 6%">Pull requests</h2>
         <div class="steps">
           <div class="step">
@@ -1110,7 +1122,7 @@
 
       <!-- FORKS -->
       <div class="slide">
-        <div class="band">Part 01 &middot; Fundamentals</div>
+        <div class="band">Part 4 &middot; Branches, PRs &amp; forks</div>
         <h2 style="margin-bottom: 6%">Forks</h2>
         <div class="sub" style="margin-bottom: 5%">Your own copy of someone else&rsquo;s repository — on your GitHub account.</div>
         <div class="rows">
@@ -1200,7 +1212,7 @@
 
       <!-- COMMIT GUIDELINES -->
       <div class="slide">
-        <div class="band">Part 01 &middot; Fundamentals</div>
+        <div class="band">Part 5 &middot; Commit guidelines</div>
         <h2 style="margin-bottom: 4%">Writing good commits</h2>
         <div class="rows" style="margin-bottom: 3%">
           <div class="row">
@@ -1268,7 +1280,7 @@
 
       <!-- ALGORITHMIC THINKING -->
       <div class="slide">
-        <div class="band">Part 01 &middot; Fundamentals</div>
+        <div class="band">Part 5 &middot; Commit guidelines</div>
         <h2 style="margin-bottom: 4%">Think in algorithms</h2>
         <div class="sub" style="margin-bottom: 4%">
           Break a big problem into smaller ones, then solve them one at a time — that&rsquo;s algorithmic thinking, and it&rsquo;s exactly how good commits work.
@@ -1300,7 +1312,7 @@
 
       <!-- COLLABORATION INTRO -->
       <div class="slide">
-        <div class="band">Part 02 &middot; Collaboration</div>
+        <div class="band">Part 6 &middot; Collaboration</div>
         <h1 class="display" style="margin-bottom: 5%">Where groups<br />struggled last time</h1>
         <div class="sub">Merge conflicts, and two people working on the same branch — let&rsquo;s prepare you for that today.</div>
       </div>
@@ -1340,7 +1352,7 @@
 
       <!-- WHAT IS A MERGE CONFLICT -->
       <div class="slide">
-        <div class="band">Part 02 &middot; Collaboration</div>
+        <div class="band">Part 6 &middot; Collaboration</div>
         <h2 style="margin-bottom: 5%">What is a merge conflict?</h2>
         <div class="sub" style="margin-bottom: 5%">
           Git can&rsquo;t automatically decide how to combine changes — usually because two people edited the same lines.
@@ -1363,7 +1375,7 @@
 
       <!-- ANATOMY OF A CONFLICT -->
       <div class="slide">
-        <div class="band">Part 02 &middot; Collaboration</div>
+        <div class="band">Part 6 &middot; Collaboration</div>
         <h2 style="margin-bottom: 5%">Anatomy of a conflict</h2>
         <div class="code" style="margin-bottom: 5%">
           <div class="code-bar">
@@ -1382,7 +1394,7 @@
 
       <!-- RESOLVING A CONFLICT -->
       <div class="slide">
-        <div class="band">Part 02 &middot; Collaboration</div>
+        <div class="band">Part 6 &middot; Collaboration</div>
         <h2 style="margin-bottom: 6%">Resolving a conflict</h2>
         <div class="steps">
           <div class="step">
@@ -1410,7 +1422,7 @@
 
       <!-- TWO PEOPLE, ONE BRANCH -->
       <div class="slide">
-        <div class="band">Part 02 &middot; Collaboration</div>
+        <div class="band">Part 6 &middot; Collaboration</div>
         <h2 style="margin-bottom: 5%">Two people, one branch</h2>
         <div class="sub" style="margin-bottom: 4%">Working on the same branch at the same time multiplies the chance of conflicts — and confusion.</div>
         <div class="cols">
@@ -1468,7 +1480,7 @@
 
       <!-- COLLABORATION GOLDEN RULES -->
       <div class="slide">
-        <div class="band">Part 02 &middot; Collaboration</div>
+        <div class="band">Part 6 &middot; Collaboration</div>
         <h2 style="margin-bottom: 6%">Collaboration golden rules</h2>
         <div class="rows">
           <div class="row">
@@ -1496,7 +1508,7 @@
 
       <!-- EXERCISES OVERVIEW -->
       <div class="slide">
-        <div class="band">Part 03 &middot; Hands-on</div>
+        <div class="band">Part 7 &middot; Some more exercises</div>
         <h2 style="margin-bottom: 6%">Exercises</h2>
         <div class="rows">
           <div class="row">
@@ -1633,7 +1645,8 @@
     <script>
       const TOTAL = 35;
       const KEY = 'git-fundamentals-slide';
-      const JUMP = { 0: 0, 1: 1, 2: 2, 3: 3, 4: 15, 5: 25, 6: 31, 7: 32 };
+      // number keys 0-7 jump to: 0 = title, 1-7 = start of each of the 7 parts
+      const JUMP = { 0: 0, 1: 2, 2: 3, 3: 7, 4: 15, 5: 20, 6: 23, 7: 31 };
 
       const deck = document.getElementById('deck');
       const bar = document.getElementById('progress');
