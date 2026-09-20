@@ -1239,6 +1239,39 @@
           <div class="code-line c-muted"># optional: Conventional Commits format — type: description</div>
         </div>
       </div>
+
+      <!-- ALGORITHMIC THINKING -->
+      <div class="slide">
+        <div class="band">Part 01 &middot; Fundamentals</div>
+        <h2 style="margin-bottom: 4%">Think in algorithms</h2>
+        <div class="sub" style="margin-bottom: 4%">
+          Break a big problem into smaller ones, then solve them one at a time — that&rsquo;s algorithmic thinking, and it&rsquo;s exactly how good commits work.
+        </div>
+        <div class="commit-chain" style="margin-bottom: 4%">
+          <div class="commit-node">
+            <div class="commit-label">Set up the form</div>
+          </div>
+          <div class="commit-arrow">
+            <div class="arrow-line">&rarr;</div>
+            <div class="arrow-label">next</div>
+          </div>
+          <div class="commit-node">
+            <div class="commit-label">Add validation</div>
+          </div>
+          <div class="commit-arrow">
+            <div class="arrow-line">&rarr;</div>
+            <div class="arrow-label">next</div>
+          </div>
+          <div class="commit-node head">
+            <div class="commit-label">Connect to API</div>
+          </div>
+        </div>
+        <div class="quote quote-purple" style="margin-bottom: 3%; text-align: center">
+          🧭 "Plans are nothing; planning is everything." — Dwight D. Eisenhower
+        </div>
+        <div class="sub" style="text-align: center">Pause before you code. The algorithm is your plan, commits show that.</div>
+      </div>
+
       <!-- COLLABORATION INTRO -->
       <div class="slide">
         <div class="band">Part 02 &middot; Collaboration</div>
@@ -1486,9 +1519,9 @@
     </div>
 
     <script>
-      const TOTAL = 29;
+      const TOTAL = 32;
       const KEY = 'git-fundamentals-slide';
-      const JUMP = { 0: 0, 1: 1, 2: 2, 3: 3, 4: 15, 5: 21, 6: 27, 7: 28 };
+      const JUMP = { 0: 0, 1: 1, 2: 2, 3: 3, 4: 15, 5: 24, 6: 30, 7: 31 };
 
       const deck = document.getElementById('deck');
       const bar = document.getElementById('progress');
