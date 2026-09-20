@@ -1302,7 +1302,40 @@
       <div class="slide">
         <div class="band">Part 02 &middot; Collaboration</div>
         <h1 class="display" style="margin-bottom: 5%">Where groups<br />struggled last time</h1>
-        <div class="sub">Merge conflicts, and two people working on the same branch — let&rsquo;s fix that today.</div>
+        <div class="sub">Merge conflicts, and two people working on the same branch — let&rsquo;s prepare you for that today.</div>
+      </div>
+
+      <!-- EXERCISE 4: FACE YOUR FIRST GIT ERROR -->
+      <div class="slide">
+        <div class="band">Practice &middot; Exercise 4</div>
+        <h2 style="margin-bottom: 5%">Face your first Git error</h2>
+        <div class="steps">
+          <div class="step">
+            <div class="step-n">1</div>
+            <div class="step-t"><strong>On your assignment repository</strong>, from <strong>main</strong>, create branch <strong>git-week1/exercise-4/&lt;your-name&gt;</strong> and switch to it</div>
+          </div>
+          <div class="step">
+            <div class="step-n">2</div>
+            <div class="step-t">In <strong>git/week1/session-playground</strong>, create <strong>colors.txt</strong> with two colors, one per line</div>
+          </div>
+          <div class="step">
+            <div class="step-n">3</div>
+            <div class="step-t">Stage, commit, and push the branch to GitHub</div>
+          </div>
+          <div class="step">
+            <div class="step-n">4</div>
+            <div class="step-t"><strong>On GitHub</strong>, edit <strong>colors.txt</strong> <strong>on that branch</strong> — add a color to the <strong>last line</strong>, commit</div>
+          </div>
+          <div class="step">
+            <div class="step-n">5</div>
+            <div class="step-t"><strong>Locally</strong>, add a color to the <strong>first line</strong>, stage, and commit</div>
+          </div>
+          <div class="step">
+            <div class="step-n">6</div>
+            <div class="step-t">Push again — Git will reject it. What happened, and how do you fix it?</div>
+          </div>
+        </div>
+        <div class="sub" style="margin-top: 4%">Objective: hit a real error and find the fix yourself — read the message carefully, search online.</div>
       </div>
 
       <!-- WHAT IS A MERGE CONFLICT -->
@@ -1545,9 +1578,9 @@
     </div>
 
     <script>
-      const TOTAL = 32;
+      const TOTAL = 33;
       const KEY = 'git-fundamentals-slide';
-      const JUMP = { 0: 0, 1: 1, 2: 2, 3: 3, 4: 15, 5: 24, 6: 30, 7: 31 };
+      const JUMP = { 0: 0, 1: 1, 2: 2, 3: 3, 4: 15, 5: 25, 6: 31, 7: 32 };
 
       const deck = document.getElementById('deck');
       const bar = document.getElementById('progress');
