@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Intro to Agile - HackYourFuture Denmark</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet" />
+    <style>
+      :root {
+        --bg: #f7f4ef;
+        --ink: #1a1a1a;
+        --muted: #555e6c;
+        --blue: #2563eb;
+        --yellow: #fdd764;
+        --purple: #e9e4ff;
+        --green: #dcfce7;
+        --orange: #fef3c7;
+        --shadow: 4px 4px 0 var(--ink);
+      }
+      * { box-sizing: border-box; }
+      html, body { height: 100%; margin: 0; }
+      body { display: flex; justify-content: center; background: #dedad2; color: var(--ink); font-family: 'DM Sans', 'Helvetica Neue', sans-serif; }
+      #deck { position: relative; width: min(100%, calc(100dvh * 16 / 9)); height: 100dvh; overflow: hidden; background: var(--bg); }
+      #deck::before { content: ''; position: absolute; inset: 0 0 auto; height: 6px; background: var(--ink); z-index: 3; }
+      #progress { position: absolute; top: 0; left: 0; height: 6px; width: 0; background: var(--blue); z-index: 4; transition: width .25s ease; }
+      .slide { position: absolute; inset: 0; display: none; overflow-y: auto; padding: 6% 8% 100px; }
+      .slide.active { display: flex; flex-direction: column; justify-content: safe center; animation: reveal .3s ease both; }
+      @keyframes reveal { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+      .band { align-self: flex-start; background: var(--ink); color: white; border-radius: 3px; padding: .4em .8em; margin-bottom: 1em; font-weight: 700; font-size: 15px; text-transform: uppercase; }
+      h1, h2 { font-family: 'Archivo Black', 'Helvetica Neue', sans-serif; line-height: 1.07; letter-spacing: 0; margin: 0 0 .45em; }
+      h1 { font-size: clamp(40px, 5vw, 72px); }
+      h2 { font-size: clamp(29px, 3.6vw, 50px); }
+      p, li { font-size: clamp(18px, 1.7vw, 24px); line-height: 1.45; }
+      p { margin: 0 0 .7em; }
+      p:last-child { margin-bottom: 0; }
+      ul, ol { margin: 0; padding-left: 1.2em; }
+      li + li { margin-top: .35em; }
+      .sub { font-size: clamp(20px, 2vw, 28px); color: var(--muted); max-width: 46em; }
+      .muted { color: var(--muted); }
+      .highlight { color: var(--blue); }
+      .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+      .grid.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .card { min-width: 0; background: white; border: 2px solid var(--ink); border-radius: 4px; box-shadow: var(--shadow); padding: 20px; }
+      .card h3 { font-size: 21px; margin: 0 0 .4em; }
+      .card p, .card li { font-size: clamp(18px, 1.45vw, 21px); }
+      .yellow { background: var(--yellow); }
+      .blue { background: #eff6ff; }
+      .purple { background: var(--purple); }
+      .green { background: var(--green); }
+      .orange { background: var(--orange); }
+      .spacer { margin-top: 20px; }
+      .values { display: grid; gap: 9px; }
+      .value { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 14px; padding: 12px 16px; background: white; border: 2px solid var(--ink); font-size: clamp(17px, 1.5vw, 22px); }
+      .value span { color: var(--muted); }
+      .value .over { color: var(--blue); font-size: 15px; font-weight: 700; text-transform: uppercase; }
+      .board { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+      .column { background: #e8ebee; border: 2px solid var(--ink); border-radius: 4px; min-height: 125px; padding: 12px; }
+      .column h3 { font-size: 17px; margin: 0 0 12px; }
+      .task { background: white; border: 1px solid var(--ink); border-radius: 3px; padding: 9px; font-size: 16px; }
+      a { color: #174fcb; font-weight: 700; text-decoration: underline; text-underline-offset: 3px; overflow-wrap: anywhere; }
+      button { font: inherit; }
+      .action { background: var(--yellow); border: 2px solid var(--ink); border-radius: 4px; box-shadow: 2px 2px 0 var(--ink); padding: 9px 14px; cursor: pointer; font-weight: 700; }
+      .action:focus-visible, a:focus-visible, .nav-button:focus-visible { outline: 3px solid var(--blue); outline-offset: 3px; }
+      .footer { position: absolute; z-index: 5; bottom: 0; left: 0; right: 0; display: flex; align-items: center; gap: 10px; padding: 12px 5%; background: var(--bg); border-top: 1px solid #d5d0c8; }
+      .dots { display: flex; flex: 1; align-items: center; gap: 5px; flex-wrap: wrap; }
+      .dot { width: 7px; height: 7px; border-radius: 50%; background: #b7b3ae; }
+      .dot.on { background: var(--blue); }
+      .count { color: var(--muted); font-size: 14px; white-space: nowrap; }
+      .nav-button { width: 38px; height: 38px; border: 2px solid var(--ink); background: white; border-radius: 4px; cursor: pointer; font-size: 23px; line-height: 1; }
+      .nav-button:disabled { opacity: .35; cursor: default; }
+      @media (max-width: 700px) {
+        .slide { padding: 38px 6% 105px; }
+        .grid, .grid.three { grid-template-columns: 1fr; }
+        .board { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .column { min-height: 90px; }
+        .value { grid-template-columns: 1fr; gap: 3px; }
+        .value .over { font-size: 13px; }
+        .card { padding: 15px; }
+        .dots { gap: 4px; }
+      }
+      @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
+    </style>
+    <noscript><style>
+      body { display: block; }
+      #deck { width: 100%; height: auto; overflow: visible; }
+      #deck::before, #progress, .footer, #move-task { display: none; }
+      .slide, .slide.active { position: static; display: block; min-height: 100vh; overflow: visible; padding: 40px 8%; }
+    </style></noscript>
+  </head>
+  <body>
+    <main id="deck" aria-label="Intro to Agile presentation">
+      <div id="progress" aria-hidden="true"></div>
+
+      <section class="slide active" aria-label="Slide 1">
+        <div class="band">HackYourFuture Denmark · Foundation</div>
+        <h1>Intro to <span class="highlight">Agile</span></h1>
+        <p class="sub">Working together, learning as we go, and making a plan we can change.</p>
+      </section>
+
+      <section class="slide" aria-label="Slide 2">
+        <div class="band">First, an exercise</div>
+        <h2>Lost at Sea</h2>
+        <p>Your yacht catches fire in the Atlantic. The crew is gone, the boat is sinking, and your location is unclear.</p>
+        <p>You have a lifeboat, matches, and <strong>15 saved items</strong>. Rank every item from 1 (most important) to 15 (least important) for survival while waiting for rescue.</p>
+        <p><a href="https://lost-at-sea.netlify.app/" target="_blank" rel="noopener noreferrer">Open Lost at Sea ↗</a></p>
+      </section>
+
+      <section class="slide" aria-label="Slide 3">
+        <div class="band">Lost at Sea · individual · 10 minutes</div>
+        <h2>Make your own ranking</h2>
+        <div class="grid">
+          <div class="card yellow"><h3>Work individually</h3><p>Read the scenario and rank all 15 items. Give each a different position.</p></div>
+          <div class="card blue"><h3>Keep your answers</h3><p>Write down your ranking so you can compare it with your team's later.</p></div>
+        </div>
+      </section>
+
+      <section class="slide" aria-label="Slide 4">
+        <div class="band">Lost at Sea · team · 30 minutes</div>
+        <h2>Agree as a team</h2>
+        <p>After the individual ranking, work in teams of <strong>3–4</strong> to create one team ranking.</p>
+        <div class="card yellow spacer"><p>For this exercise, everyone must agree. Listen to each other, explain your choices, and write down the final order.</p></div>
+      </section>
+
+      <section class="slide" aria-label="Slide 5">
+        <div class="band">Lost at Sea · debrief · 25 minutes</div>
+        <h2>What did you notice?</h2>
+        <p>The facilitator intentionally changed the time limit to prompt reflection.</p>
+        <ul>
+          <li>How did your team reach decisions? Was everyone heard?</li>
+          <li>What changed when the time limit changed? Who was heard?</li>
+          <li>How did your team ranking compare with individual rankings?</li>
+          <li>What would you do differently next time?</li>
+        </ul>
+        <p class="spacer"><strong>Agile connection:</strong> Teams communicate, make decisions and adapt when circumstances change.</p>
+        <p class="spacer"><a href="https://lost-at-sea.netlify.app/answer_check" target="_blank" rel="noopener noreferrer">Check team answers ↗</a></p>
+      </section>
+
+      <section class="slide" aria-label="Slide 6">
+        <div class="band">The big picture</div>
+        <h2>What is project management?</h2>
+        <p class="sub">Organising people and work to reach a <strong>shared goal</strong>.</p>
+        <div class="grid three spacer">
+          <div class="card yellow"><h3>Where are we going?</h3><p>Agree on the outcome.</p></div>
+          <div class="card blue"><h3>How do we get there?</h3><p>Plan the work and resources.</p></div>
+          <div class="card green"><h3>Are we on track?</h3><p>Communicate and adjust.</p></div>
+        </div>
+      </section>
+
+      <section class="slide" aria-label="Slide 7">
+        <div class="band">Ways of working</div>
+        <h2>Waterfall and Agile</h2>
+        <div class="grid">
+          <div class="card orange"><h3>Waterfall</h3><p>Plan, design, build, test and deliver in largely sequential stages. Feedback often comes later.</p></div>
+          <div class="card blue"><h3>Agile</h3><p>Build in small steps, get feedback early and often, and adapt as you learn.</p></div>
+        </div>
+        <p class="spacer muted">Sequential work can suit stable requirements, but late feedback can mean costly rework. Agile revisits the plan as we learn.</p>
+      </section>
+
+      <section class="slide" aria-label="Slide 8">
+        <div class="band">The Agile Manifesto</div>
+        <h2>People and working software</h2>
+        <div class="grid">
+          <div class="card yellow"><h3>Individuals and interactions over processes and tools</h3><p>Talk through a blocker together, even when it is already recorded on the board.</p></div>
+          <div class="card blue"><h3>Working software over comprehensive documentation</h3><p>Show a working feature early, while keeping the documentation people need.</p></div>
+        </div>
+        <p class="spacer muted">The items on the right have value; we value those on the left more.</p>
+      </section>
+
+      <section class="slide" aria-label="Agile Manifesto: collaboration and change">
+        <div class="band">The Agile Manifesto</div>
+        <h2>Collaboration and change</h2>
+        <div class="grid">
+          <div class="card green"><h3>Customer collaboration over contract negotiation</h3><p>Ask the customer for feedback during development, not only when agreeing the contract.</p></div>
+          <div class="card purple"><h3>Responding to change over following a plan</h3><p>Reorder the plan when feedback reveals a more urgent need.</p></div>
+        </div>
+        <p class="spacer muted">Contracts and plans still matter. <a href="https://agilemanifesto.org/" target="_blank" rel="noopener noreferrer">Read the Manifesto ↗</a></p>
+      </section>
+
+      <section class="slide" aria-label="Slide 9">
+        <div class="band">Exercise · 10 minutes</div>
+        <h2>Draw a rocket</h2>
+        <p>Watch one demonstration: two volunteers are the customer and the artist. Use paper and markers or a shared drawing screen.</p>
+        <div class="grid spacer">
+          <div class="card orange"><h3>1. Waterfall · 3 min</h3><p>Draw the whole rocket out of the customer's view. Get feedback at the end.</p></div>
+          <div class="card blue"><h3>2. Agile · 4 min</h3><p>Draw again, showing each part as you go. Ask questions and use feedback along the way.</p></div>
+        </div>
+        <p class="spacer">Discuss for 3 min: which better matches the customer's vision, and why?</p>
+      </section>
+
+      <section class="slide" aria-label="Slide 10">
+        <div class="band">A practical framework</div>
+        <h2>Scrum basics</h2>
+        <p class="sub">Agile is a mindset. <strong>Scrum</strong> is one framework for putting it into practice.</p>
+        <div class="grid three spacer">
+          <div class="card yellow"><h3>Sprint</h3><p>A fixed period of one month or less, chosen by the team, to work toward a goal and finish something useful.</p></div>
+          <div class="card blue"><h3>Product backlog</h3><p>An ordered list of work that may be needed for the product.</p></div>
+          <div class="card green"><h3>Sprint backlog</h3><p>The work selected for the current sprint and the plan to deliver it.</p></div>
+        </div>
+        <p class="spacer"><a href="https://scrumguides.org/scrum-guide.html" target="_blank" rel="noopener noreferrer">Read the official Scrum Guide ↗</a></p>
+      </section>
+
+      <section class="slide" aria-label="Scrum values">
+        <div class="band">Scrum · values</div>
+        <h2>Five values for teamwork</h2>
+        <div class="grid three">
+          <div class="card yellow"><h3>Commitment</h3><p>Work toward the team's goals and support each other.</p></div>
+          <div class="card blue"><h3>Focus</h3><p>Pay attention to the sprint goal and the work that matters now.</p></div>
+          <div class="card green"><h3>Openness</h3><p>Share progress and challenges, and ask for help.</p></div>
+          <div class="card orange"><h3>Respect</h3><p>Value each person's skills, knowledge and contribution.</p></div>
+          <div class="card purple"><h3>Courage</h3><p>Raise concerns, give honest feedback and tackle difficult problems.</p></div>
+        </div>
+      </section>
+
+      <section class="slide" aria-label="Scrum team">
+        <div class="band">Scrum · team</div>
+        <h2>One team, three accountabilities</h2>
+        <p>Scrum teams organise their own work and share responsibility for a useful result.</p>
+        <div class="grid three spacer">
+          <div class="card yellow"><h3>Product Owner</h3><p>Helps maximise product value and is accountable for ordering the product backlog.</p></div>
+          <div class="card blue"><h3>Scrum Master</h3><p>Helps the team understand Scrum, improve how it works and address obstacles.</p></div>
+          <div class="card green"><h3>Developers</h3><p>Plan and create the useful result. Their skills can include design, testing and coding.</p></div>
+        </div>
+      </section>
+
+      <section class="slide" aria-label="Scrum events">
+        <div class="band">Scrum · events</div>
+        <h2>How a sprint unfolds</h2>
+        <p>The <strong>sprint</strong> is the fixed period that contains these events:</p>
+        <div class="grid spacer">
+          <div class="card yellow"><h3>Sprint Planning</h3><p>Agree on a sprint goal and plan the work to achieve it.</p></div>
+          <div class="card blue"><h3>Daily Scrum</h3><p>Developers check progress toward the goal and adjust their plan each day.</p></div>
+          <div class="card green"><h3>Sprint Review</h3><p>Inspect the result with stakeholders and discuss what to do next.</p></div>
+          <div class="card purple"><h3>Sprint Retrospective</h3><p>Reflect on how the team worked and plan improvements.</p></div>
+        </div>
+      </section>
+
+      <section class="slide" aria-label="Slide 11">
+        <div class="band">Demo · Trello</div>
+        <h2>Make work visible</h2>
+        <p><a href="https://trello.com/" target="_blank" rel="noopener noreferrer">Trello ↗</a> is a web tool for organising work on a board. Each <strong>card</strong> represents a task; lists show where work stands.</p>
+        <div class="board spacer" aria-label="Example Trello board">
+          <div class="column"><h3>Product backlog</h3><div id="column-0"><div class="task" id="example-task">Plan the date</div></div></div>
+          <div class="column"><h3>Sprint backlog</h3><div id="column-1"></div></div>
+          <div class="column"><h3>In progress</h3><div id="column-2"></div></div>
+          <div class="column"><h3>Done</h3><div id="column-3"></div></div>
+        </div>
+        <div class="spacer"><button class="action" id="move-task" type="button">Move example task →</button> <span id="task-status" class="muted" aria-live="polite"></span></div>
+        <noscript><p>Example flow: Product backlog → Sprint backlog → In progress → Done.</p></noscript>
+      </section>
+
+      <section class="slide" aria-label="Board flow">
+        <div class="band">Demo · board flow</div>
+        <h2>From idea to done</h2>
+        <ul>
+          <li><strong>Product backlog:</strong> all potential work, ordered by priority.</li>
+          <li><strong>Sprint backlog:</strong> selected work and the plan for this sprint; other work stays in the product backlog.</li>
+          <li><strong>In progress:</strong> work underway. Discuss blockers or dependencies with the team.</li>
+          <li><strong>Done:</strong> the team has checked its agreed completion criteria, such as a confirmed booking.</li>
+        </ul>
+      </section>
+
+      <section class="slide" aria-label="Slide 12">
+        <div class="band">Board setup · 10 minutes</div>
+        <h2>Plan a birthday party</h2>
+        <p>In class, sign in or create a free account at <a href="https://trello.com/" target="_blank" rel="noopener noreferrer">Trello</a>. Create a board with <strong>Product backlog</strong>, <strong>Sprint backlog</strong>, <strong>In progress</strong>, and <strong>Done</strong> lists.</p>
+        <p>Add these seven cards to the product backlog. They are not yet in priority order:</p>
+        <div class="grid">
+          <ul><li>Buy decorations</li><li>Order the birthday cake</li><li>Send out invitations</li><li>Book the venue</li></ul>
+          <ul><li>Choose and buy party snacks</li><li>Plan the playlist / music</li><li>Plan the date</li></ul>
+        </div>
+      </section>
+
+      <section class="slide" aria-label="Slide 13">
+        <div class="band">Prioritisation</div>
+        <h2>Now / Next / Later</h2>
+        <p>When there is lots to do, decide what matters first.</p>
+        <div class="grid three spacer">
+          <div class="card yellow"><h3>Now</h3><p>Urgent work or decisions that unblock other tasks.</p></div>
+          <div class="card blue"><h3>Next</h3><p>Important work to do soon, after its dependencies.</p></div>
+          <div class="card purple"><h3>Later</h3><p>Useful ideas that can wait.</p></div>
+        </div>
+        <p class="spacer muted">Consider deadlines, dependencies and value. Several tasks can be Now; explain your choices together.</p>
+      </section>
+
+      <section class="slide" aria-label="Slide 14">
+        <div class="band">After setup · pairs · 10 minutes</div>
+        <h2>What's first?</h2>
+        <ol>
+          <li>With a partner, decide which birthday tasks are Now, Next or Later. Discuss your reasons.</li>
+          <li>Order your product backlog: Now at the top, then Next, then Later.</li>
+          <li>Move all Now tasks into your sprint backlog.</li>
+        </ol>
+        <p class="spacer">Then share and compare your reasons as a group <strong>(3 more minutes)</strong>.</p>
+      </section>
+
+      <section class="slide" aria-label="Slide 15">
+        <div class="band">Up next</div>
+        <h2>From Agile to <span class="highlight">teamwork</span></h2>
+        <p class="sub">You have a starting plan. Next, explore how teams communicate, organise and work together.</p>
+        <p class="spacer"><a href="agile-teamwork-presentation.html">Continue to Agile Teamwork →</a></p>
+        <p><a href="https://program.hackyourfuture.dk/course-content/foundation/intro-to-agile/week-1/session-plan" target="_blank" rel="noopener noreferrer">Session plan and source ↗</a></p>
+      </section>
+
+      <nav class="footer" aria-label="Presentation navigation">
+        <div class="dots" id="dots" aria-hidden="true"></div>
+        <span class="count" id="count" aria-live="polite"></span>
+        <button class="nav-button" id="prev" type="button" aria-label="Previous slide">←</button>
+        <button class="nav-button" id="next" type="button" aria-label="Next slide">→</button>
+      </nav>
+    </main>
+    <script>
+      const deck = document.getElementById('deck');
+      const slides = Array.from(document.querySelectorAll('.slide'));
+      const dots = document.getElementById('dots');
+      const progress = document.getElementById('progress');
+      const count = document.getElementById('count');
+      const previous = document.getElementById('prev');
+      const next = document.getElementById('next');
+      let current = 0;
+      slides.forEach((slide, position) => {
+        const heading = slide.querySelector('h1, h2');
+        slide.setAttribute('aria-label', `Slide ${position + 1}: ${heading.textContent}`);
+        const dot = document.createElement('span'); dot.className = 'dot'; dots.appendChild(dot);
+      });
+      function show(index) {
+        current = Math.max(0, Math.min(slides.length - 1, index));
+        slides.forEach((slide, position) => {
+          slide.classList.toggle('active', position === current);
+          slide.setAttribute('aria-hidden', String(position !== current));
+        });
+        Array.from(dots.children).forEach((dot, position) => dot.classList.toggle('on', position === current));
+        progress.style.width = `${current / (slides.length - 1) * 100}%`;
+        count.textContent = `${current + 1} / ${slides.length}`;
+        previous.disabled = current === 0;
+        next.disabled = current === slides.length - 1;
+      }
+      previous.addEventListener('click', () => show(current - 1));
+      next.addEventListener('click', () => show(current + 1));
+      deck.addEventListener('click', event => {
+        if (!event.target.closest('a, button, nav') && !window.getSelection().toString()) show(current + 1);
+      });
+      document.addEventListener('keydown', event => {
+        if (event.target.closest('a, button, input, textarea, select')) return;
+        if (event.key === 'ArrowRight' || event.key === ' ' || event.key === 'PageDown') { event.preventDefault(); show(current + (event.shiftKey ? -1 : 1)); }
+        if (event.key === 'ArrowLeft' || event.key === 'PageUp') { event.preventDefault(); show(current - 1); }
+      });
+      let taskColumn = 0;
+      const task = document.getElementById('example-task');
+      const taskStatus = document.getElementById('task-status');
+      const columnNames = ['Product backlog', 'Sprint backlog', 'In progress', 'Done'];
+      function renderTask() {
+        document.getElementById(`column-${taskColumn}`).appendChild(task);
+        taskStatus.textContent = `Current list: ${columnNames[taskColumn]}`;
+        document.getElementById('move-task').textContent = taskColumn === 3 ? 'Restart example' : 'Move example task →';
+      }
+      document.getElementById('move-task').addEventListener('click', () => { taskColumn = (taskColumn + 1) % columnNames.length; renderTask(); });
+      renderTask();
+      show(0);
+    </script>
+  </body>
+</html>
